@@ -1,5 +1,4 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export enum HeritageStatus {
   DRAFT = 'DRAFT',
@@ -10,67 +9,44 @@ export enum HeritageStatus {
   PUBLISHED = 'PUBLISHED'
 }
 
-export class Heritage extends Model<InferAttributes<Heritage>, InferCreationAttributes<Heritage>> {
-  declare id?: string;
-  declare heritageCode: string;
-  declare name: string;
-  declare description: string;
-  declare category: string;
-  declare source: string;
-  declare sourceOrganization: string;
-  declare sourceReference: string;
-  declare status: HeritageStatus;
-  declare createdBy?: string;
-  declare verifiedBy?: string;
+@Entity({ name: 'heritages' })
+export class Heritage {
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
+
+  @Column({ type: 'varchar', unique: true })
+  heritageCode: string;
+
+  @Column({ type: 'varchar' })
+  name: string;
+
+  @Column({ type: 'text' })
+  description: string;
+
+  @Column({ type: 'varchar' })
+  category: string;
+
+  @Column({ type: 'varchar' })
+  source: string;
+
+  @Column({ type: 'varchar' })
+  sourceOrganization: string;
+
+  @Column({ type: 'text' })
+  sourceReference: string;
+
+  @Column({ type: 'enum', enum: HeritageStatus, default: HeritageStatus.DRAFT })
+  status: HeritageStatus;
+
+  @Column({ type: 'uuid', nullable: true })
+  createdBy?: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  verifiedBy?: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
-
-Heritage.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    heritageCode: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    category: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    source: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    sourceOrganization: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    sourceReference: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.ENUM(...Object.values(HeritageStatus)),
-      allowNull: false,
-      defaultValue: HeritageStatus.DRAFT
-    },
-    createdBy: DataTypes.UUID,
-    verifiedBy: DataTypes.UUID
-  },
-  {
-    sequelize,
-    tableName: 'heritages'
-  }
-);
-

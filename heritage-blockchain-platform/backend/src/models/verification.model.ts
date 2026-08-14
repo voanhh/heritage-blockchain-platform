@@ -1,45 +1,24 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../config/database.js';
-
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 export enum VerificationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED'
 }
-
-export class Verification extends Model<InferAttributes<Verification>, InferCreationAttributes<Verification>> {
-  declare id?: string;
-  declare heritageId: string;
-  declare reviewerId: string;
-  declare status: VerificationStatus;
-  declare notes?: string;
+@Entity({ name: 'verifications' })
+export class Verification {
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
+  @Column({ type: 'uuid' })
+  heritageId: string;
+  @Column({ type: 'uuid' })
+  reviewerId: string;
+  @Column({ type: 'enum', enum: VerificationStatus, default: VerificationStatus.PENDING })
+  status: VerificationStatus;
+  @Column({ type: 'text', nullable: true })
+  notes?: string;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
-
-Verification.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    heritageId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    reviewerId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.ENUM(...Object.values(VerificationStatus)),
-      allowNull: false,
-      defaultValue: VerificationStatus.PENDING
-    },
-    notes: DataTypes.TEXT
-  },
-  {
-    sequelize,
-    tableName: 'verifications'
-  }
-);
 

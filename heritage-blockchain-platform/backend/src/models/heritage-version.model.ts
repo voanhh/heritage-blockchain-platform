@@ -1,46 +1,21 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../config/database.js';
-
-export class HeritageVersion extends Model<
-  InferAttributes<HeritageVersion>,
-  InferCreationAttributes<HeritageVersion>
-> {
-  declare id?: string;
-  declare heritageId: string;
-  declare version: number;
-  declare canonicalData: object;
-  declare dataHash: string;
-  declare createdBy?: string;
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+@Entity({ name: 'heritage_versions' })
+export class HeritageVersion {
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
+  @Column({ type: 'uuid' })
+  heritageId: string;
+  @Column({ type: 'int' })
+  version: number;
+  @Column({ type: 'json' })
+  canonicalData: object;
+  @Column({ type: 'varchar', length: 64 })
+  dataHash: string;
+  @Column({ type: 'uuid', nullable: true })
+  createdBy?: string;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
-
-HeritageVersion.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    heritageId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    version: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    canonicalData: {
-      type: DataTypes.JSON,
-      allowNull: false
-    },
-    dataHash: {
-      type: DataTypes.STRING(64),
-      allowNull: false
-    },
-    createdBy: DataTypes.UUID
-  },
-  {
-    sequelize,
-    tableName: 'heritage_versions'
-  }
-);
 
