@@ -9,12 +9,14 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-ethers": "^3.0.8",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.15",
+    "@nomicfoundation/hardhat-toolbox": "^7.0.0",
     "@types/node": "^22.10.2",
     "eslint": "^9.17.0",
-    "hardhat": "^2.22.18",
+    "hardhat": "^3.13.0",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "sequelize": "3.30.0"
   }
 }
-
