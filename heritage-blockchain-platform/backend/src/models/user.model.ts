@@ -1,46 +1,22 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { UserRole } from '../types/rbac.js';
-
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare id?: string;
-  declare organizationId?: string;
-  declare email: string;
-  declare passwordHash: string;
-  declare fullName: string;
-  declare role: UserRole;
+@Entity({ name: 'users' })
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
+  @Column({ type: 'uuid', nullable: true })
+  organizationId?: string;
+  @Column({ type: 'varchar', unique: true })
+  email: string;
+  @Column({ type: 'varchar' })
+  passwordHash: string;
+  @Column({ type: 'varchar' })
+  fullName: string;
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  role: UserRole;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
-
-User.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    organizationId: DataTypes.UUID,
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    passwordHash: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    fullName: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    role: {
-      type: DataTypes.ENUM(...Object.values(UserRole)),
-      allowNull: false,
-      defaultValue: UserRole.USER
-    }
-  },
-  {
-    sequelize,
-    tableName: 'users'
-  }
-);
 

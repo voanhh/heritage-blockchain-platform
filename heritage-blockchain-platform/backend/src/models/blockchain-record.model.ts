@@ -1,48 +1,23 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../config/database.js';
-
-export class BlockchainRecord extends Model<
-  InferAttributes<BlockchainRecord>,
-  InferCreationAttributes<BlockchainRecord>
-> {
-  declare id?: string;
-  declare heritageId: string;
-  declare dataHash: string;
-  declare version: number;
-  declare verifier: string;
-  declare transactionHash?: string;
-  declare blockNumber?: number;
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+@Entity({ name: 'blockchain_records' })
+export class BlockchainRecord {
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
+  @Column({ type: 'uuid' })
+  heritageId: string;
+  @Column({ type: 'varchar', length: 64 })
+  dataHash: string;
+  @Column({ type: 'int' })
+  version: number;
+  @Column({ type: 'varchar' })
+  verifier: string;
+  @Column({ type: 'varchar', nullable: true })
+  transactionHash?: string;
+  @Column({ type: 'int', nullable: true })
+  blockNumber?: number;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
-
-BlockchainRecord.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    heritageId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    dataHash: {
-      type: DataTypes.STRING(64),
-      allowNull: false
-    },
-    version: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    verifier: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    transactionHash: DataTypes.STRING,
-    blockNumber: DataTypes.INTEGER
-  },
-  {
-    sequelize,
-    tableName: 'blockchain_records'
-  }
-);
 
