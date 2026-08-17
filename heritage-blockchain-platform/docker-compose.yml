@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  database:
+    image: mysql:8.0
+    container_name: heritage_db_container
+    env_file:
+      - ./backend/.env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_USER_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: heritage_adminer_container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+volumes:
+  mysql_data:
