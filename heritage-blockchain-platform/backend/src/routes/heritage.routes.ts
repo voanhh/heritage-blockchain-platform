@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { HeritageController } from '../controllers/heritage.controller.js';
-import { requireRole } from '../middleware/rbac.middleware.js';
-import { UserRole } from '../types/rbac.js';
 
-export const heritageRouter = Router();
-const controller = new HeritageController();
+const router = Router();
 
-heritageRouter.get('/', controller.list);
-heritageRouter.get('/:id', controller.detail);
-heritageRouter.post('/', requireRole([UserRole.ADMIN, UserRole.DATA_PROVIDER]), controller.createPlaceholder);
+router.get('/', HeritageController.getAllHeritages);
+router.get('/:id', HeritageController.getHeritageById);
+router.post('/', HeritageController.createHeritage);
+router.put('/:id', HeritageController.updateHeritage);
+router.delete('/:id', HeritageController.deleteHeritage);
 
+export default router;
