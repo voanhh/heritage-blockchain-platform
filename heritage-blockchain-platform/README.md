@@ -96,15 +96,17 @@ cp blockchain/.env.example blockchain/.env
 
 Không commit `.env` hoặc private key.
 
+Cập nhật `.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_USER_PASSWORD`.(theo env.example)
+
 ## Database setup
 
-Tạo database MySQL:
+Chạy docker
 
-```sql
-CREATE DATABASE heritage_blockchain CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```bash
+docker-compose up -d
 ```
 
-Sau đó cập nhật `backend/.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+
 
 ## Chạy frontend
 
