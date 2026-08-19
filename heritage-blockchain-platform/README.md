@@ -96,6 +96,8 @@ cp blockchain/.env.example blockchain/.env
 
 Không commit `.env` hoặc private key.
 
+Cập nhật `.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_USER_PASSWORD`.(theo env.example)
+
 ## Database setup
 
 Chạy docker để khởi tạo database rỗng:
@@ -108,7 +110,7 @@ Chạy migration để tạo các bảng:
 npm run migration:run
 ```
 
-Sau đó cập nhật `backend/.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+
 
 ## Chạy frontend
 
