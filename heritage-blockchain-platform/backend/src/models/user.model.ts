@@ -1,4 +1,4 @@
-﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Relation } from 'typeorm';
 import { UserRole } from '../types/rbac.js';
 import { Organization } from './organization.model.js';
 import { Heritage } from './heritage.model.js';
@@ -24,10 +24,10 @@ export class User {
 
   @ManyToOne(() => Organization, org => org.users, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'organizationId' })
-  organization: Organization;
+  organization: Relation<Organization>;
 
   @OneToMany(() => Heritage, heritage => heritage.creator)
-  createdHeritages: Heritage[];
+  createdHeritages: Relation<Heritage>[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

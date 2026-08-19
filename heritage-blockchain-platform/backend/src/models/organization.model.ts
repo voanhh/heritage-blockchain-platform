@@ -1,4 +1,4 @@
-﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Relation } from 'typeorm';
 import { User } from './user.model.js';
 @Entity({ name: 'organizations' })
 export class Organization {
@@ -12,7 +12,7 @@ export class Organization {
   description?: string;
 
   @OneToMany(() => User, user => user.organization)
-  users: User[];
+  users: Relation<User>[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

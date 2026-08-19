@@ -1,4 +1,4 @@
-﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Relation } from 'typeorm';
 import { Heritage } from './heritage.model.js';
 import { User } from './user.model.js';
 @Entity({ name: 'heritage_versions' })
@@ -23,11 +23,11 @@ export class HeritageVersion {
 
   @ManyToOne(() => Heritage, heritage => heritage.versions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'heritageId' })
-  heritage: Heritage;
+  heritage: Relation<Heritage>;
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'createdBy' })
-  creator: User;
+  creator: Relation<User>;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

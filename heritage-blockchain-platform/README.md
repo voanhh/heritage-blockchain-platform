@@ -98,10 +98,14 @@ Không commit `.env` hoặc private key.
 
 ## Database setup
 
-Tạo database MySQL:
+Chạy docker để khởi tạo database rỗng:
+```bash
+docker-compose up -d
+```
 
-```sql
-CREATE DATABASE heritage_blockchain CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+Chạy migration để tạo các bảng:
+```bash
+npm run migration:run
 ```
 
 Sau đó cập nhật `backend/.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.

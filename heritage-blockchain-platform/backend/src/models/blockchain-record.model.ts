@@ -1,4 +1,4 @@
-﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Relation } from 'typeorm';
 import { Heritage } from './heritage.model.js';
 @Entity({ name: 'blockchain_records' })
 export class BlockchainRecord {
@@ -25,7 +25,7 @@ export class BlockchainRecord {
 
   @ManyToOne(() => Heritage, heritage => heritage.blockchainRecords, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'heritageId' })
-  heritage: Heritage;
+  heritage: Relation<Heritage>;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

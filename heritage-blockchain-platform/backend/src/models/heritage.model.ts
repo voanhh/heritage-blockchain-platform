@@ -1,4 +1,4 @@
-﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Relation } from 'typeorm';
 import { User } from './user.model.js';
 import { HeritageVersion } from './heritage-version.model.js';
 import { Verification } from './verification.model.js';
@@ -47,16 +47,16 @@ export class Heritage {
 
   @ManyToOne(() => User, user => user.createdHeritages, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'createdBy' })
-  creator: User;
+  creator: Relation<User>;
 
   @OneToMany(() => HeritageVersion, version => version.heritage)
-  versions: HeritageVersion[];
+  versions: Relation<HeritageVersion>[];
 
   @OneToMany(() => Verification, verification => verification.heritage)
-  verifications: Verification[];
+  verifications: Relation<Verification>[];
 
   @OneToMany(() => BlockchainRecord, record => record.heritage)
-  blockchainRecords: BlockchainRecord[];
+  blockchainRecords: Relation<BlockchainRecord>[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
