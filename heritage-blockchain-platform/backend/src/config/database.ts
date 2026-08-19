@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { User } from '../models/user.model.js';
 import { Organization } from '../models/organization.model.js';
