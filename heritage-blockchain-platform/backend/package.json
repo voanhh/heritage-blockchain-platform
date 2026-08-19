@@ -8,7 +8,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "migration:generate": "npx typeorm-ts-node-esm migration:generate src/migrations/InitDatabase -d src/config/database.ts",
+    "migration:run": "npx typeorm-ts-node-esm migration:run -d src/config/database.ts"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "4.0.15",
