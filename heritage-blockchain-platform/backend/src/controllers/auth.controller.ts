@@ -15,12 +15,12 @@ const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   secure: false, //true ở productions
   sameSite: 'strict',
-  path: '/api/v1/auth/refresh',
+  path: '/api/auth/refresh',
   maxAge: 30 * 24 * 3600 * 1000,
 }
 
 const CLEAR_COOKIE_OPTIONS = {
-  path: '/api/v1/auth/refresh',
+  path: '/api/auth/refresh',
 }
 export class AuthController {
 
@@ -54,9 +54,9 @@ export class AuthController {
   static async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshToken = req.cookies?.refreshToken;
-      const { userId, deviceId = 'default' } = req.body;
-
-      if (!refreshToken || !userId) {
+      const deviceIdHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceIdHeader === 'string' ? deviceIdHeader : 'default';
+      if (!refreshToken) {
         res.status(401).json({ message: 'MISSING TOKEN' });
         return;
       }
@@ -65,8 +65,9 @@ export class AuthController {
       //     res.status(401).json({message: 'Token MISSMATCH - POTENTIAL CSRF ATTACK'});
       //    }
 
-      const { refreshToken: newRt, ...response } = await AuthServices.refresh(userId, deviceId, refreshToken);
+      const { refreshToken: newRt, ...response } = await AuthServices.refresh(deviceId, refreshToken);
       res.cookie('refreshToken', newRt, COOKIE_OPTIONS);
+
       res.json(response);
     } catch (error) {
       res.clearCookie('refreshToken', CLEAR_COOKIE_OPTIONS);

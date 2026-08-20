@@ -5,10 +5,9 @@ import { UserRole } from '../types/enums/rbac.js';
 import { User } from '../models/user.model.js';
 import { AuthResponseDto, LoginDto, RegisterDto } from '../types/dto/auth.dto.js';
 import { TokenServices } from './token.service.js';
+import { RefreshToken } from '../models/refresh-token.model.js';
 
 export class AuthServices {
-
-  // private static userReposistory = AppDataSource.getRepository(User);
 
   static async register(data: RegisterDto): Promise<AuthResponseDto & { refreshToken: string }> {
     try {
@@ -50,9 +49,20 @@ export class AuthServices {
     return TokenServices.issueTokens(user, deviceId);
   }
 
-  static async refresh(userId: string,
+  static async refresh(
     deviceId = 'default',
     oldToken: string): Promise<AuthResponseDto & { refreshToken: string }> {
+    const existingToken = await AppDataSource.getRepository(RefreshToken).findOne({
+      where: { token: oldToken, deviceId, isRevoked: false },
+      relations: ['user'] // Lấy luôn entity User nếu cần
+    });
+
+    if (!existingToken || existingToken.expiresAt < new Date()) {
+      throw new Error('INVALID_OR_EXPIRED_TOKEN');
+    };
+
+    const userId = existingToken.userId;
+
     return await TokenServices.rotateTokens(userId, deviceId, oldToken);
   }
 
