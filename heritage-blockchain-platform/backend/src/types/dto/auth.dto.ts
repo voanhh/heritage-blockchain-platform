@@ -1,16 +1,17 @@
 // src/dtos/auth.dto.ts
-import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
 import { UserRole } from '../enums/rbac.js';
 import { Exclude, Expose } from 'class-transformer';
 import { Organization } from '../../models/organization.model.js';
 
 export class RegisterDto {
+  @IsNotEmpty({ message: 'Email không được để trống' })
   @IsEmail({}, { message: 'Email không hợp lệ' })
   email: string;
 
   @IsString()
   @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
-  password: string;
+  passwordRaw: string;
 
   @IsString()
   @MaxLength(255)
@@ -22,7 +23,10 @@ export class LoginDto {
   email: string;
 
   @IsString()
-  password: string;
+  passwordRaw: string;
+
+  @IsString()
+  deviceId?: string;
 }
 
 @Exclude()
