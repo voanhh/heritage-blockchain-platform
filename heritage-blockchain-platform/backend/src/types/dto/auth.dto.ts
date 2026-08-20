@@ -1,7 +1,8 @@
 // src/dtos/auth.dto.ts
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum, MaxLength } from 'class-validator';
-import { UserRole } from '../types/rbac.js';
+import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import { UserRole } from '../enums/rbac.js';
 import { Exclude, Expose } from 'class-transformer';
+import { Organization } from '../../models/organization.model.js';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
@@ -39,13 +40,18 @@ export class UserResponseDto {
   role: UserRole;
 
   @Expose()
-  organizationId?: string;
-
-  @Expose()
-  createdAt: Date;
-
-  @Expose()
-  updatedAt: Date;
-
+  organizationId?: Organization;
 }
 
+@Exclude()
+export class AuthResponseDto {
+  @Expose()
+  accessToken: string
+
+  @Expose()
+  expiredIn: number
+
+  @Expose()
+  userData: UserResponseDto
+
+}
