@@ -1,16 +1,18 @@
-const successHandler = (status: number, message: string, data: any = null) => {
-    return {
-        status,
-        message,
-        data
-    }
-}
+const successHandler = (status: number, message: string, data: unknown = null) => {
+  return {
+    success: true,
+    status,
+    message,
+    data
+  };
+};
 
 const errorHandler = (status: number, message: string) => {
-    return {
-        status,
-        message,
-    }
-}
+  return {
+    success: false,
+    status,
+    message
+  };
+};
 
-export { successHandler, errorHandler }
+export { successHandler, errorHandler };

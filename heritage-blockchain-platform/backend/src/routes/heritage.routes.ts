@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { HeritageController } from '../controllers/heritage.controller.js';
 
-const router = Router();
+export const heritageRouter = Router();
 
-router.get('/', HeritageController.getAllHeritages);
-router.get('/:id', HeritageController.getHeritageById);
-router.post('/', HeritageController.createHeritage);
-router.put('/:id', HeritageController.updateHeritage);
-router.delete('/:id', HeritageController.deleteHeritage);
-
-export default router;
+heritageRouter.get('/', HeritageController.getAllHeritages);
+heritageRouter.get('/:id', HeritageController.getHeritageById);
+heritageRouter.post('/', HeritageController.createHeritage);
+heritageRouter.put('/:id', HeritageController.updateHeritage);
+heritageRouter.patch('/:id/submit', HeritageController.submitHeritage);
+heritageRouter.patch('/:id/status', HeritageController.updateHeritageStatus);
+heritageRouter.delete('/:id', HeritageController.deleteHeritage);
