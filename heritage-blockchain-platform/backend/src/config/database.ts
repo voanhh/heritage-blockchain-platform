@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
 import { User } from '../models/user.model.js';
 import { Organization } from '../models/organization.model.js';
@@ -8,7 +10,11 @@ import { HeritageVersion } from '../models/heritage-version.model.js';
 import { BlockchainRecord } from '../models/blockchain-record.model.js';
 import { Verification } from '../models/verification.model.js';
 
-dotenv.config();
+const currentFile = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFile);
+const backendRoot = path.resolve(currentDir, '../..');
+
+dotenv.config({ path: path.join(backendRoot, '.env') });
 
 export const AppDataSource = new DataSource({
   type: 'mysql',
@@ -18,8 +24,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD ?? '',
   database: process.env.DB_NAME ?? 'heritage_blockchain',
   entities: [User, Organization, Heritage, HeritageVersion, BlockchainRecord, Verification],
-  // For development default to true so schema is created automatically. Disable in production.
-  synchronize: process.env.NODE_ENV === 'production' ? false : true,
+  synchronize: process.env.DB_SYNCHRONIZE === 'true',
   logging: process.env.DB_LOGGING === 'true'
 });
 
