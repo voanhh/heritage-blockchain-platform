@@ -21,5 +21,10 @@ export const authApi = {
     // Gọi đến endpoint register của Backend
     const response = await axiosClient.post('/auth/register', payload);
     return response.data;
+  },
+
+  logout: async () => {
+    const response = await axiosClient.post('/auth/logout');
+    return response.data;
   }
 };
