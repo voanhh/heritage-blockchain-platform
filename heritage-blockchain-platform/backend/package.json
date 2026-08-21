@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
+    "seed:heritage:draft": "tsx src/scripts/seed-draft-heritages.ts",
     "migration:generate": "npx typeorm-ts-node-esm migration:generate src/migrations/InitDatabase -d src/config/database.ts",
     "migration:run": "npx typeorm-ts-node-esm migration:run -d src/config/database.ts"
   },

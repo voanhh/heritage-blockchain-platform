@@ -1,0 +1,40 @@
+export type HeritageStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'PUBLISHED';
+
+export type Heritage = {
+  id: string;
+  heritageCode: string;
+  name: string;
+  description: string;
+  category: string;
+  source: string;
+  sourceOrganization: string;
+  sourceReference: string;
+  status: HeritageStatus;
+  createdBy?: string;
+  verifiedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type HeritagePayload = {
+  heritageCode: string;
+  name: string;
+  description: string;
+  category: string;
+  source: string;
+  sourceOrganization: string;
+  sourceReference: string;
+};
+
+export type ApiResponse<T> = {
+  success: boolean;
+  status: number;
+  message: string;
+  data: T;
+};

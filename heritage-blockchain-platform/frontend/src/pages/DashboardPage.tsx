@@ -4,7 +4,6 @@ export function DashboardPage() {
   return (
     <section className="space-y-6">
       <div>
-        <p className="text-sm font-medium uppercase tracking-wide text-emerald-700">Phase 1</p>
         <h1 className="mt-2 text-3xl font-semibold text-slate-900">Dashboard nền tảng nghiên cứu</h1>
         <p className="mt-3 max-w-3xl text-slate-600">
           Prototype chuẩn bị kiến trúc định danh, hash dữ liệu, lưu trữ lai và đối chiếu Database với
