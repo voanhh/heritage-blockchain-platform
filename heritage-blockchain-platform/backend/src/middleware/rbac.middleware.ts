@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { UserRole } from '../types/rbac.js';
+import { UserRole } from '../types/enums/rbac.js';
 
 type RequestWithUser = Request & {
   user?: {

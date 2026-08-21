@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import dotenv from 'dotenv';
 import { app } from './app.js';
 import { initializeDatabase } from './config/database.js';

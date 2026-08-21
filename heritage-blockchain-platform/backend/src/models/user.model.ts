@@ -1,11 +1,11 @@
 ﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Relation } from 'typeorm';
-import { UserRole } from '../types/rbac.js';
+import { UserRole } from '../types/enums/rbac.js';
 import { Organization } from './organization.model.js';
 import { Heritage } from './heritage.model.js';
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id?: string;
+  id: string;
 
   @Column({ type: 'uuid', nullable: true })
   organizationId?: string;
