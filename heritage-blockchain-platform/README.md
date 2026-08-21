@@ -100,10 +100,14 @@ Cập nhật `.env` với `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_USER_P
 
 ## Database setup
 
-Chạy docker
-
+Chạy docker để khởi tạo database rỗng:
 ```bash
 docker-compose up -d
+```
+
+Chạy migration để tạo các bảng:
+```bash
+npm run migration:run
 ```
 
 

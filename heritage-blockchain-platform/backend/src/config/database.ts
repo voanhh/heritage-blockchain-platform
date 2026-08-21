@@ -23,9 +23,10 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER ?? 'root',
   password: process.env.DB_PASSWORD ?? '',
   database: process.env.DB_NAME ?? 'heritage_blockchain',
-  entities: [User, Organization, Heritage, HeritageVersion, BlockchainRecord, Verification],
+  entities: ["src/**/*.model.ts"],
   synchronize: process.env.DB_SYNCHRONIZE === 'true',
-  logging: process.env.DB_LOGGING === 'true'
+  logging: process.env.DB_LOGGING === 'true',
+  migrations: ['src/migrations/*.ts'],
 });
 
 export async function initializeDatabase() {
