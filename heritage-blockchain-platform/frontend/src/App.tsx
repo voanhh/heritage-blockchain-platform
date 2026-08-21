@@ -6,11 +6,13 @@ import { HeritageDetailPage } from './pages/HeritageDetailPage';
 import { HeritageListPage } from './pages/HeritageListPage';
 import { LoginPage } from './pages/LoginPage';
 import { VerificationPage } from './pages/VerificationPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route element={<AppLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
