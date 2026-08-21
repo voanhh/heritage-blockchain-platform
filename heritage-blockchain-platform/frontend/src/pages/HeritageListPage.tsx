@@ -126,7 +126,7 @@ export function HeritageListPage() {
     <section className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm font-medium uppercase text-emerald-700">Phase 3</p>
+          <p className="text-sm font-medium uppercase text-emerald-700">Anh em tao macau</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-900">Quản lý hồ sơ di sản</h1>
           <p className="mt-2 text-sm text-slate-600">
             Tạo, cập nhật, tra cứu và gửi hồ sơ di sản văn hóa phi vật thể sang bước kiểm duyệt.
