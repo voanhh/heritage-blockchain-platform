@@ -4,6 +4,7 @@ import { VerificationController } from '../controllers/verification.controller.j
 export const verificationRouter = Router();
 
 verificationRouter.get('/', VerificationController.getAllVerifications);
+verificationRouter.get('/heritage/:heritageId', VerificationController.getVerificationsByHeritageId);
 verificationRouter.get('/:id', VerificationController.getVerificationById);
 verificationRouter.post('/:heritageId/start-review', VerificationController.startReview);
 verificationRouter.post('/:heritageId/approve', VerificationController.approveHeritage);

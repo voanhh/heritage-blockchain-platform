@@ -18,6 +18,10 @@ export class VerificationService {
 
   static async getAllVerifications() {
     return this.verificationRepository.find({
+      relations: {
+        heritage: true,
+        reviewer: true
+      },
       order: {
         createdAt: 'DESC'
       }
@@ -25,7 +29,35 @@ export class VerificationService {
   }
 
   static async getVerificationById(id: string) {
-    return this.verificationRepository.findOneBy({ id });
+    return this.verificationRepository.findOne({
+      where: {
+        id
+      },
+      relations: {
+        heritage: true,
+        reviewer: true
+      }
+    });
+  }
+
+  static async getVerificationsByHeritageId(heritageId: string) {
+    const heritage = await this.heritageRepository.findOneBy({ id: heritageId });
+
+    if (!heritage) {
+      throw new Error('HERITAGE_NOT_FOUND');
+    }
+
+    return this.verificationRepository.find({
+      where: {
+        heritageId
+      },
+      relations: {
+        reviewer: true
+      },
+      order: {
+        createdAt: 'DESC'
+      }
+    });
   }
 
   static async startReview(heritageId: string, input: VerificationInput) {
@@ -63,10 +95,12 @@ export class VerificationService {
       throw new Error('HERITAGE_MUST_BE_UNDER_REVIEW');
     }
 
-    const verification = await this.findLatestVerificationOrCreate(heritageId, input);
-    verification.status = VerificationStatus.APPROVED;
-    verification.notes = input.notes?.trim() ?? verification.notes;
-    verification.reviewerId = input.reviewerId ?? verification.reviewerId;
+    const verification = this.verificationRepository.create({
+      heritageId,
+      reviewerId: input.reviewerId,
+      status: VerificationStatus.APPROVED,
+      notes: input.notes?.trim()
+    });
 
     heritage.status = HeritageStatus.VERIFIED;
 
@@ -87,10 +121,12 @@ export class VerificationService {
       throw new Error('HERITAGE_MUST_BE_UNDER_REVIEW');
     }
 
-    const verification = await this.findLatestVerificationOrCreate(heritageId, input);
-    verification.status = VerificationStatus.REJECTED;
-    verification.notes = input.notes?.trim() ?? verification.notes;
-    verification.reviewerId = input.reviewerId ?? verification.reviewerId;
+    const verification = this.verificationRepository.create({
+      heritageId,
+      reviewerId: input.reviewerId,
+      status: VerificationStatus.REJECTED,
+      notes: input.notes?.trim()
+    });
 
     heritage.status = HeritageStatus.REJECTED;
 
@@ -98,27 +134,5 @@ export class VerificationService {
     await this.heritageRepository.save(heritage);
 
     return verification;
-  }
-
-  private static async findLatestVerificationOrCreate(heritageId: string, input: VerificationInput) {
-    const verification = await this.verificationRepository.findOne({
-      where: {
-        heritageId
-      },
-      order: {
-        createdAt: 'DESC'
-      }
-    });
-
-    if (verification) {
-      return verification;
-    }
-
-    return this.verificationRepository.create({
-      heritageId,
-      reviewerId: input.reviewerId,
-      status: VerificationStatus.PENDING,
-      notes: input.notes?.trim()
-    });
   }
 }

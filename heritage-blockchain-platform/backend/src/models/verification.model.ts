@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Relation } from 'typeorm';
 import { Heritage } from './heritage.model.js';
 import { User } from './user.model.js';
+
 export enum VerificationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -16,7 +17,7 @@ export class Verification {
   heritageId: string;
 
   @Column({ type: 'uuid', nullable: true })
-  reviewerId: string;
+  reviewerId?: string;
 
   @Column({ type: 'enum', enum: VerificationStatus, default: VerificationStatus.PENDING })
   status: VerificationStatus;
@@ -28,16 +29,13 @@ export class Verification {
   @JoinColumn({ name: 'heritageId' })
   heritage: Relation<Heritage>;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL' })
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'reviewerId' })
-  reviewer: Relation<User>;
+  reviewer?: Relation<User>;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
-
 }
-
-

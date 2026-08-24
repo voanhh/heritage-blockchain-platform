@@ -27,6 +27,16 @@ export class VerificationController {
     }
   }
 
+  static async getVerificationsByHeritageId(request: Request, response: Response) {
+    try {
+      const verifications = await VerificationService.getVerificationsByHeritageId(String(request.params.heritageId));
+
+      return response.status(200).json(successHandler(200, 'Lay lich su kiem duyet cua ho so thanh cong', verifications));
+    } catch (error) {
+      return VerificationController.handleError(error, response, 'Loi khi lay lich su kiem duyet cua ho so');
+    }
+  }
+
   static async startReview(request: Request, response: Response) {
     try {
       const verification = await VerificationService.startReview(String(request.params.heritageId), request.body);
