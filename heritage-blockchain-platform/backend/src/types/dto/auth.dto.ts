@@ -2,7 +2,6 @@
 import { IsEmail, IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
 import { UserRole } from '../enums/rbac.js';
 import { Exclude, Expose } from 'class-transformer';
-import { Organization } from '../../models/organization.model.js';
 
 export class RegisterDto {
   @IsNotEmpty({ message: 'Email không được để trống' })
@@ -44,7 +43,7 @@ export class UserResponseDto {
   role: UserRole;
 
   @Expose()
-  organizationId?: Organization;
+  organizationId?: string;
 }
 
 @Exclude()
@@ -59,3 +58,4 @@ export class AuthResponseDto {
   userData: UserResponseDto
 
 }
+
