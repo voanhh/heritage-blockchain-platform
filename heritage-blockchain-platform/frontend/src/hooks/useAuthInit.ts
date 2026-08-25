@@ -1,7 +1,7 @@
 // src/hooks/useAuthInit.ts
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { axiosClient } from '../api/axiosClient';
+import  axiosClient  from '../api/axiosClient';
 
 export function useAuthInit() {
   const [isInitializing, setIsInitializing] = useState(true);
