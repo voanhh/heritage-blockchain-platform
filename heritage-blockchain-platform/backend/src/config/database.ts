@@ -1,21 +1,15 @@
 import 'reflect-metadata';
-import dotenv from 'dotenv';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-const currentFile = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentFile);
-const backendRoot = path.resolve(currentDir, '../..');
-
-dotenv.config({ path: path.join(backendRoot, '.env') });
-
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 export const AppDataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST ?? 'localhost',
   port: Number(process.env.DB_PORT ?? 3306),
   username: process.env.DB_USER ?? 'root',
-  password: process.env.DB_PASSWORD ?? '',
+  password: process.env.DB_USER_PASSWORD ?? '',
   database: process.env.DB_NAME ?? 'heritage_blockchain',
   entities: ["src/**/*.model.ts"],
   synchronize: process.env.DB_SYNCHRONIZE === 'true',
