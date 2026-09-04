@@ -3,10 +3,10 @@ import { AppLayout } from './layouts/AppLayout';
 import { BlockchainRecordsPage } from './pages/BlockchainRecordsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HeritageDetailPage } from './pages/HeritageDetailPage';
-import { HeritageListPage } from './pages/HeritageListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { VerificationPage } from './pages/VerificationPage';
+import { HeritagePage } from './pages/HeritagePage';
 
 export default function App() {
   return (
@@ -17,7 +17,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/heritages" element={<HeritageListPage />} />
+        <Route path="/heritages" element={<HeritagePage />} />
         <Route path="/heritages/:id" element={<HeritageDetailPage />} />
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/blockchain" element={<BlockchainRecordsPage />} />
@@ -74,7 +74,7 @@ export default function App() {
 //       </Routes>
 //     </BrowserRouter>
 
-      
+
 //     </Routes>
 //   );
 // }
