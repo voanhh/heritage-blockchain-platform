@@ -1,6 +1,7 @@
 // src/components/heritage/HeritageForm.tsx
 import { Edit3, Plus } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+import { heritagePayloadSchema } from '../../types/heritage';
 import type { HeritagePayload } from '../../types/heritage';
 
 const emptyForm: HeritagePayload = {
@@ -21,6 +22,7 @@ interface HeritageFormProps {
 
 export function HeritageForm({ initialData, onSubmit, onCancel }: HeritageFormProps) {
   const [form, setForm] = useState<HeritagePayload>(emptyForm);
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
   const isEditing = Boolean(initialData);
 
   useEffect(() => {
@@ -29,12 +31,26 @@ export function HeritageForm({ initialData, onSubmit, onCancel }: HeritageFormPr
     } else {
       setForm(emptyForm);
     }
+    setErrors({});
   }, [initialData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await onSubmit(form);
-    if (!isEditing) setForm(emptyForm);
+
+    // Sử dụng Schema đã import để parse dữ liệu
+    const validationResult = heritagePayloadSchema.safeParse(form);
+
+    if (!validationResult.success) {
+      setErrors(validationResult.error.flatten().fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    await onSubmit(validationResult.data);
+
+    if (!isEditing) {
+      setForm(emptyForm);
+    }
   };
 
   return (
@@ -45,20 +61,21 @@ export function HeritageForm({ initialData, onSubmit, onCancel }: HeritageFormPr
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <Field label="Mã hồ sơ" value={form.heritageCode} onChange={(val) => setForm({ ...form, heritageCode: val })} />
-        <Field label="Tên di sản" value={form.name} onChange={(val) => setForm({ ...form, name: val })} />
-        <Field label="Loại hình" value={form.category} onChange={(val) => setForm({ ...form, category: val })} />
-        <Field label="Nguồn dữ liệu" value={form.source} onChange={(val) => setForm({ ...form, source: val })} />
-        <Field label="Tổ chức nguồn" value={form.sourceOrganization} onChange={(val) => setForm({ ...form, sourceOrganization: val })} />
-        <Field label="Tài liệu tham chiếu" value={form.sourceReference} onChange={(val) => setForm({ ...form, sourceReference: val })} />
+        <Field label="Mã hồ sơ" value={form.heritageCode} error={errors.heritageCode?.[0]} onChange={(val) => setForm({ ...form, heritageCode: val })} />
+        <Field label="Tên di sản" value={form.name} error={errors.name?.[0]} onChange={(val) => setForm({ ...form, name: val })} />
+        <Field label="Loại hình" value={form.category} error={errors.category?.[0]} onChange={(val) => setForm({ ...form, category: val })} />
+        <Field label="Nguồn dữ liệu" value={form.source} error={errors.source?.[0]} onChange={(val) => setForm({ ...form, source: val })} />
+        <Field label="Tổ chức nguồn" value={form.sourceOrganization} error={errors.sourceOrganization?.[0]} onChange={(val) => setForm({ ...form, sourceOrganization: val })} />
+        <Field label="Tài liệu tham chiếu" value={form.sourceReference || ''} error={errors.sourceReference?.[0]} onChange={(val) => setForm({ ...form, sourceReference: val })} />
         <label className="md:col-span-2">
           <span className="text-sm font-medium text-slate-700">Mô tả</span>
           <textarea
-            className="mt-1 min-h-28 w-full rounded border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-700"
-            required
+            className={`mt-1 min-h-28 w-full rounded border px-3 py-2 text-sm outline-none transition-colors ${errors.description ? 'border-red-500 focus:border-red-600' : 'border-stone-300 focus:border-emerald-700'
+              }`}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
+          {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description[0]}</p>}
         </label>
       </div>
 
@@ -76,16 +93,16 @@ export function HeritageForm({ initialData, onSubmit, onCancel }: HeritageFormPr
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Field({ label, value, error, onChange }: { label: string; value: string; error?: string; onChange: (v: string) => void }) {
   return (
     <label>
       <span className="text-sm font-medium text-slate-700">{label}</span>
       <input
-        className="mt-1 w-full rounded border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-700"
-        required
+        className={`mt-1 w-full rounded border px-3 py-2 text-sm outline-none transition-colors ${error ? 'border-red-500 focus:border-red-600' : 'border-stone-300 focus:border-emerald-700'}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </label>
   );
 }
