@@ -3,15 +3,7 @@ import { User } from './user.model.js';
 import { HeritageVersion } from './heritage-version.model.js';
 import { Verification } from './verification.model.js';
 import { BlockchainRecord } from './blockchain-record.model.js';
-
-export enum HeritageStatus {
-  DRAFT = 'DRAFT',
-  SUBMITTED = 'SUBMITTED',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  VERIFIED = 'VERIFIED',
-  REJECTED = 'REJECTED',
-  PUBLISHED = 'PUBLISHED'
-}
+import { HeritageStatus } from '../types/enums/heritage.enum.js';
 
 @Entity({ name: 'heritages' })
 export class Heritage {

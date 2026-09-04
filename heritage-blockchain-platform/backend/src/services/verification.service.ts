@@ -1,6 +1,7 @@
 import { AppDataSource } from '../config/database.js';
-import { Heritage, HeritageStatus } from '../models/heritage.model.js';
+import { Heritage } from '../models/heritage.model.js';
 import { Verification, VerificationStatus } from '../models/verification.model.js';
+import { HeritageStatus } from '../types/enums/heritage.enum.js';
 
 export type VerificationInput = {
   reviewerId?: string;
