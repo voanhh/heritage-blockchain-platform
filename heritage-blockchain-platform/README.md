@@ -163,6 +163,6 @@ npm --workspace blockchain run test
 - Phase 10 - Future Extensions.
 
 ## Giới hạn Phase 1
-
 Phase 1 không triển khai NFT marketplace, cryptocurrency/token, payment, Ethereum Mainnet, bán vé thật, giao dịch tài sản thật, IPFS production integration, toàn bộ Heritage CRUD, toàn bộ authentication hoặc toàn bộ verification workflow.
 
+<img width="1427" height="839" alt="image" src="https://github.com/user-attachments/assets/5ac90323-058a-4b8d-bfdc-c0d9e3b1e6b4" />
