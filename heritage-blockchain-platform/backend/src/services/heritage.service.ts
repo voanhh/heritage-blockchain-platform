@@ -55,7 +55,7 @@ export class HeritageService {
       heritageCode: heritageData.heritageCode!.trim(),
       name: heritageData.name!.trim(),
       description: heritageData.description!.trim(),
-      category: heritageData.category!.trim(),
+      fieldId: heritageData.category!.trim(),
       source: heritageData.source!.trim(),
       sourceOrganization: heritageData.sourceOrganization!.trim(),
       sourceReference: heritageData.sourceReference!.trim(),
@@ -86,7 +86,7 @@ export class HeritageService {
     heritage.heritageCode = heritageData.heritageCode?.trim() ?? heritage.heritageCode;
     heritage.name = heritageData.name?.trim() ?? heritage.name;
     heritage.description = heritageData.description?.trim() ?? heritage.description;
-    heritage.category = heritageData.category?.trim() ?? heritage.category;
+    heritage.fieldId = heritageData.category?.trim() ?? heritage.fieldId;
     heritage.source = heritageData.source?.trim() ?? heritage.source;
     heritage.sourceOrganization = heritageData.sourceOrganization?.trim() ?? heritage.sourceOrganization;
     heritage.sourceReference = heritageData.sourceReference?.trim() ?? heritage.sourceReference;
