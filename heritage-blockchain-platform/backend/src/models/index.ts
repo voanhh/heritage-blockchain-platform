@@ -9,7 +9,7 @@ import { Expert } from './expert.model.js';
 import { HeritageFieldSpecialization } from './heritage-field-specialization.model.js';
 import { HeritageField } from './heritage-fields.model.js';
 import { Specialization } from './specialization.model.js';
-
+import { OrganizationJoinRequest } from './organization-join-request.model.js';
 
 
 // Relationship mappings are handled via TypeORM decorators and/or queries.
@@ -24,5 +24,6 @@ export {
   Expert,
   HeritageField,
   HeritageFieldSpecialization,
-  Specialization
+  Specialization,
+  OrganizationJoinRequest
 };
