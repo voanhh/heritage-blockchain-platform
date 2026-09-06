@@ -9,6 +9,7 @@ import { VerificationPage } from './pages/VerificationPage';
 import { HeritagePage } from './pages/HeritagePage';
 import { Toaster } from 'react-hot-toast';
 import { useAuthInit } from './hooks/useAuthInit';
+import CreateOrganizationPage from './pages/OrganizattionPage';
 
 export default function App() {
 
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/heritages/:id" element={<HeritageDetailPage />} />
           <Route path="/verification" element={<VerificationPage />} />
           <Route path="/blockchain" element={<BlockchainRecordsPage />} />
+          <Route path="/organization" element={<CreateOrganizationPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

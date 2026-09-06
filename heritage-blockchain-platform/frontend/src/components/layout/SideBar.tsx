@@ -1,4 +1,4 @@
-import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut } from 'lucide-react';
+import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
@@ -8,7 +8,8 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/heritages', label: 'Di sản', icon: Archive },
   { to: '/verification', label: 'Kiểm duyệt', icon: CheckCircle2 },
-  { to: '/blockchain', label: 'Blockchain', icon: Blocks }
+  { to: '/blockchain', label: 'Blockchain', icon: Blocks },
+  { to: '/organization', label: 'Tổ chức', icon: Goal }
 ];
 
 export function Sidebar() {
