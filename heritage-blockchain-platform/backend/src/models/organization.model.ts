@@ -21,8 +21,11 @@ export class Organization {
   @Column({ type: 'varchar', unique: true })
   contactEmail: string;
 
-  @Column({ type: 'varchar' }) // Lưu URL file ảnh/PDF minh chứng
-  legalDocumentUrl: string;
+  @Column({ type: 'simple-array' }) // Lưu URL file ảnh/PDF minh chứng
+  legalDocumentUrls: string[];
+
+  @Column({ type: 'uuid', nullable: false })
+  requesterId: string
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

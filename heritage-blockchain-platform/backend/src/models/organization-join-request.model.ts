@@ -1,12 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Relation } from 'typeorm';
 import { User } from './user.model.js';
 import { Organization } from './organization.model.js';
-
-export enum RequestStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED'
-}
+import { RequestStatus } from '../types/enums/organization.enum.js';
 
 @Entity({ name: 'organization_join_requests' })
 export class OrganizationJoinRequest {

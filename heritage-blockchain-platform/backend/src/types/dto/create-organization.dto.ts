@@ -1,10 +1,17 @@
 // src/types/dto/create-organization.dto.ts
-import { IsString, IsNotEmpty, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, Matches, IsArray, MinLength, MaxLength } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
+
+  // Bổ sung description vào đây
+  @IsString()
+  @IsNotEmpty({ message: 'Mô tả không được để trống' })
+  @MinLength(10, { message: 'Mô tả tổ chức quá ngắn (tối thiểu 10 ký tự)' })
+  @MaxLength(1000, { message: 'Mô tả không được vượt quá 1000 ký tự' })
+  description!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Email không được để trống' })
@@ -14,7 +21,7 @@ export class CreateOrganizationDto {
   })
   contactEmail!: string;
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty({ message: 'Bắt buộc phải tải lên minh chứng pháp lý' })
-  legalDocumentUrl!: string;
+  legalDocumentUrls!: string[];
 }
