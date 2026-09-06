@@ -65,4 +65,19 @@ export class OrganizationService {
       return await transactionalEntityManager.save(Organization, org);
     });
   }
+
+  static async getApprovedOrganizations() {
+    return this.orgRepository.find({
+      where: { status: RequestStatus.APPROVED },
+      select: ['id', 'name', 'description', 'contactEmail', 'createdAt'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  // 2. Lấy chi tiết 1 tổ chức theo ID
+  static async getOrganizationById(id: string) {
+    const org = await this.orgRepository.findOne({ where: { id } });
+    if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
+    return org;
+  }
 }

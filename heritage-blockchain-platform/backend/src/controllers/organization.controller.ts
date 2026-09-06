@@ -56,4 +56,25 @@ export class OrganizationController {
       return res.status(400).json({ success: false, message: error.message });
     }
   }
+
+  // 2. Mọi User: Lấy danh sách tổ chức ĐÃ ĐƯỢC DUYỆT (Trang OrganizationListPage)
+  static async getApprovedList(req: Request, res: Response) {
+    try {
+      const data = await OrganizationService.getApprovedOrganizations();
+      return res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  // 3. Mọi User: Lấy chi tiết 1 tổ chức theo ID (Trang OrganizationDetailPage)
+  static async getDetail(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const data = await OrganizationService.getOrganizationById(id as string);
+      return res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      return res.status(404).json({ success: false, message: error.message || 'Không tìm thấy tổ chức' });
+    }
+  }
 }

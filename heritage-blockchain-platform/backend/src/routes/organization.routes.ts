@@ -8,6 +8,18 @@ import { UserRole } from '../types/enums/rbac.js';
 
 const organizationRoute = Router();
 
+organizationRoute.get(
+  '/',
+  AuthMiddleware.authenticate,
+  OrganizationController.getApprovedList
+);
+
+organizationRoute.get(
+  '/:id',
+  AuthMiddleware.authenticate,
+  OrganizationController.getDetail
+);
+
 // Endpoint: POST /organizations/request
 organizationRoute.post(
   '/request',
