@@ -10,6 +10,7 @@ import { HeritagePage } from './pages/HeritagePage';
 import { Toaster } from 'react-hot-toast';
 import { useAuthInit } from './hooks/useAuthInit';
 import CreateOrganizationPage from './pages/OrganizattionPage';
+import PendingOrganizationsPage from './pages/PendingOrganization';
 
 export default function App() {
 
@@ -39,7 +40,10 @@ export default function App() {
           <Route path="/heritages/:id" element={<HeritageDetailPage />} />
           <Route path="/verification" element={<VerificationPage />} />
           <Route path="/blockchain" element={<BlockchainRecordsPage />} />
-          <Route path="/organization" element={<CreateOrganizationPage />} />
+          {/* Cụm Route Tổ chức */}
+          <Route path="/organization/request" element={<CreateOrganizationPage />} />
+          <Route path="/organization/pending" element={<PendingOrganizationsPage />} />
+          <Route path="/organization" element={<Navigate to="/organization/request" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
