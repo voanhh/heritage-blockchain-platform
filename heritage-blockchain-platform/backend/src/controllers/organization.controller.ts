@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { OrganizationService } from '../services/organization.service.js';
 
 export class OrganizationController {
+  //organization/request
   static async requestCreation(req: Request, res: Response) {
     try {
       const userId = req.user!.sub; // Giả sử bạn đã có middleware authenticate gán req.user
@@ -25,6 +26,34 @@ export class OrganizationController {
         success: false,
         message: error.message || 'Lỗi khi gửi yêu cầu'
       });
+    }
+  }
+
+  //organization/pending
+  static async getPendingRequests(req: Request, res: Response) {
+    try {
+      const data = await OrganizationService.getPendingOrganizations();
+      return res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  //organization/status
+  static async updateStatus(req: Request, res: Response) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const dto = req.body;
+
+      const result = await OrganizationService.updateOrganizationStatus(id, dto);
+
+      return res.status(200).json({
+        success: true,
+        message: `Đã ${dto.status === 'APPROVED' ? 'phê duyệt' : 'từ chối'} tổ chức thành công`,
+        data: result
+      });
+    } catch (error: any) {
+      return res.status(400).json({ success: false, message: error.message });
     }
   }
 }
