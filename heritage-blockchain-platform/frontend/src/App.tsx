@@ -11,6 +11,8 @@ import { Toaster } from 'react-hot-toast';
 import { useAuthInit } from './hooks/useAuthInit';
 import CreateOrganizationPage from './pages/OrganizattionPage';
 import PendingOrganizationsPage from './pages/PendingOrganization';
+import OrganizationListPage from './pages/OrganizationListPage';
+import OrganizationDetailPage from './pages/OrganizationDetailPage';
 
 export default function App() {
 
@@ -41,9 +43,11 @@ export default function App() {
           <Route path="/verification" element={<VerificationPage />} />
           <Route path="/blockchain" element={<BlockchainRecordsPage />} />
           {/* Cụm Route Tổ chức */}
+          <Route path="/organization/list" element={<OrganizationListPage />} />
+          <Route path="/organization/:id" element={<OrganizationDetailPage />} />
           <Route path="/organization/request" element={<CreateOrganizationPage />} />
           <Route path="/organization/pending" element={<PendingOrganizationsPage />} />
-          <Route path="/organization" element={<Navigate to="/organization/request" replace />} />
+          <Route path="/organization" element={<Navigate to="/organization/list" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

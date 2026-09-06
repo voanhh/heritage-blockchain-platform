@@ -1,4 +1,4 @@
-import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus } from 'lucide-react';
+import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus, Building2 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
@@ -83,6 +83,16 @@ export function Sidebar() {
           {/* --- SUB MENU CON --- */}
           {isOrgMenuOpen && (
             <div className="mt-1 ml-4 space-y-1 border-l-2 border-stone-200 pl-3">
+
+              <NavLink
+                to="/organization/list"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-600 hover:bg-stone-100'
+                  }`
+                }
+              >
+                <Building2 size={14} /> Danh sách tổ chức
+              </NavLink>
               {/* Mục con 1: Chỉ System Admin mới nhìn thấy */}
               {isSystemAdmin && (
                 <NavLink
