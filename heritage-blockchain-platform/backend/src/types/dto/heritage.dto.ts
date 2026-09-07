@@ -16,7 +16,7 @@ export class CreateHeritageDto {
   description!: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Thể loại không được để trống' })
   category!: string;
 
   @IsString()
@@ -24,7 +24,6 @@ export class CreateHeritageDto {
   source!: string;
 
   @IsString()
-  @IsNotEmpty()
   sourceOrganization!: string;
 
   @IsString()

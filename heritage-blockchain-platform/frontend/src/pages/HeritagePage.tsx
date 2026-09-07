@@ -1,40 +1,63 @@
-// src/pages/HeritageListPage.tsx
+// src/pages/HeritagePage.tsx
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import toast from 'react-hot-toast'; // Import thư viện Toast
+import toast from 'react-hot-toast';
 import { heritageApi } from '../services/heritage.api';
+import { masterDataApi } from '../api/masterData.api'; // Giả định API master data của bạn
 import type { Heritage, HeritagePayload, HeritageStatus } from '../types/heritage';
 
-// Import các component con
-import { HeritageForm } from '../components/heritage/HeritageForm';
+import { HeritageForm, HeritageCategoryOption, OrganizationOption } from '../components/heritage/HeritageForm';
 import { HeritageList } from '../components/heritage/HeritageList';
+import { organizationApi } from '../api/organization.api';
 
 export function HeritagePage() {
   const [heritages, setHeritages] = useState<Heritage[]>([]);
   const [editingHeritage, setEditingHeritage] = useState<HeritagePayload | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // 🟢 State lưu danh mục Loại hình & Tổ chức đang hoạt động
+  const [categories, setCategories] = useState<HeritageCategoryOption[]>([]);
+  const [organizations, setOrganizations] = useState<OrganizationOption[]>([]);
+
   const [status, setStatus] = useState<HeritageStatus | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ĐÃ XÓA state message ở đây
-
+  // Tải danh sách hồ sơ di sản
   const loadHeritages = useCallback(async () => {
     setLoading(true);
     try {
       const response = await heritageApi.list({ status, search });
       setHeritages(response.data.data);
     } catch {
-      // Dùng toast báo lỗi thay vì setState
       toast.error('Không thể tải danh sách hồ sơ di sản.');
     } finally {
       setLoading(false);
     }
   }, [search, status]);
 
+  // 🟢 Tải danh mục Loại hình và Tổ chức đang hoạt động
+  const loadMasterData = async () => {
+    try {
+      const [catRes, orgRes] = await Promise.all([
+        masterDataApi.getHeritageFields(),
+        organizationApi.getApprovedList(), // Gọi API lấy các tổ chức đã phê duyệt
+      ]);
+
+      // Set danh mục Loại hình di sản
+      setCategories(catRes.data?.data || catRes.data || []);
+
+      // Set danh sách Tổ chức
+      const orgsData = orgRes.data?.data || orgRes.data || [];
+      setOrganizations(orgsData);
+    } catch (err) {
+      console.error('Lỗi nạp danh mục dữ liệu:', err);
+    }
+  };
+
   useEffect(() => {
     void loadHeritages();
+    void loadMasterData();
   }, [loadHeritages]);
 
   const handleFormSubmit = async (payload: HeritagePayload) => {
@@ -57,7 +80,6 @@ export function HeritagePage() {
   const startEdit = (heritage: Heritage) => {
     setEditingId(heritage.id);
     setEditingHeritage(heritage);
-    // Kéo mượt lên đầu trang để người dùng thấy form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -84,7 +106,6 @@ export function HeritagePage() {
 
   return (
     <section className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-medium uppercase text-emerald-700">Hệ thống di sản</p>
@@ -98,11 +119,11 @@ export function HeritagePage() {
         </button>
       </div>
 
-      {/* ĐÃ XÓA thẻ div render message màu vàng ở đây */}
-
-      {/* Component Form: Được import từ HeritageForm_4.tsx của bạn */}
+      {/* 🟢 Truyền categories & organizations xuống HeritageForm */}
       <HeritageForm
         initialData={editingHeritage}
+        categories={categories}
+        organizations={organizations}
         onSubmit={handleFormSubmit}
         onCancel={() => {
           setEditingId(null);
@@ -110,7 +131,6 @@ export function HeritagePage() {
         }}
       />
 
-      {/* Component List: Được import từ HeritageList.tsx của bạn */}
       <HeritageList
         heritages={heritages}
         loading={loading}
