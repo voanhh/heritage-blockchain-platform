@@ -3,15 +3,8 @@ import { User } from './user.model.js';
 import { HeritageVersion } from './heritage-version.model.js';
 import { Verification } from './verification.model.js';
 import { BlockchainRecord } from './blockchain-record.model.js';
-
-export enum HeritageStatus {
-  DRAFT = 'DRAFT',
-  SUBMITTED = 'SUBMITTED',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  VERIFIED = 'VERIFIED',
-  REJECTED = 'REJECTED',
-  PUBLISHED = 'PUBLISHED'
-}
+import { HeritageStatus } from '../types/enums/heritage.enum.js';
+import { HeritageField } from './heritage-fields.model.js';
 
 @Entity({ name: 'heritages' })
 export class Heritage {
@@ -27,8 +20,12 @@ export class Heritage {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'varchar' })
-  category: string;
+  @Column({ type: 'uuid' })
+  fieldId: string;
+
+  @ManyToOne(() => HeritageField, field => field.heritages)
+  @JoinColumn({ name: 'fieldId' })
+  field: Relation<HeritageField>
 
   @Column({ type: 'varchar' })
   source: string;
