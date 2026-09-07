@@ -6,6 +6,9 @@ import { verificationRouter } from './verification.routes.js';
 import { authRouter } from './auth.routes.js';
 import organizationRoute from './organization.routes.js';
 import uploadRouter from './upload.routes.js';
+import heritageFieldRoutes from './heritage-field.routes.js';
+import specializationRoutes from './specialization.routes.js';
+import matrixMappingRoutes from './heritage-field-specialization.routes.js';
 
 export const apiRouter = Router();
 
@@ -16,3 +19,6 @@ apiRouter.use('/blockchain-records', blockchainRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/organization', organizationRoute);
 apiRouter.use('/upload', uploadRouter);
+apiRouter.use('/heritage-fields', heritageFieldRoutes);
+apiRouter.use('/specializations', specializationRoutes);
+apiRouter.use('/heritage-field-specializations', matrixMappingRoutes);

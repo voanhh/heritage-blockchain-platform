@@ -1,4 +1,4 @@
-import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus, Building2 } from 'lucide-react';
+import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus, Building2, Layers, Award, FolderCog } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
@@ -17,6 +17,7 @@ export function Sidebar() {
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isOrgMenuOpen, setIsOrgMenuOpen] = useState(location.pathname.startsWith('/organization'));
+  const [isMgmtMenuOpen, setIsMgmtMenuOpen] = useState(location.pathname.startsWith('/master-data'));
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
@@ -63,6 +64,48 @@ export function Sidebar() {
           );
         })}
 
+        {/* --- MENU CHA: QUẢN LÝ (CHỈ SYSTEM_ADMIN THẤY) --- */}
+        {isSystemAdmin && (
+          <div>
+            <button
+              onClick={() => setIsMgmtMenuOpen(!isMgmtMenuOpen)}
+              className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm font-medium transition-colors ${location.pathname.startsWith('/master-data')
+                  ? 'bg-stone-100 text-slate-900'
+                  : 'text-slate-600 hover:bg-stone-100'
+                }`}
+            >
+              <div className="flex items-center gap-3">
+                <FolderCog size={18} />
+                <span>Quản lý</span>
+              </div>
+              {isMgmtMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </button>
+
+            {isMgmtMenuOpen && (
+              <div className="mt-1 ml-4 space-y-1 border-l-2 border-stone-200 pl-3">
+                <NavLink
+                  to="/master-data/heritage-fields"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 font-semibold text-emerald-800' : 'text-slate-600 hover:bg-stone-100'
+                    }`
+                  }
+                >
+                  <Layers size={14} /> Loại hình di sản
+                </NavLink>
+
+                <NavLink
+                  to="/master-data/specializations"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 font-semibold text-emerald-800' : 'text-slate-600 hover:bg-stone-100'
+                    }`
+                  }
+                >
+                  <Award size={14} /> Chuyên môn
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* --- MENU CHA: TỔ CHỨC --- */}
         <div>

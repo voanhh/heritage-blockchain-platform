@@ -13,6 +13,9 @@ import CreateOrganizationPage from './pages/OrganizattionPage';
 import PendingOrganizationsPage from './pages/PendingOrganization';
 import OrganizationListPage from './pages/OrganizationListPage';
 import OrganizationDetailPage from './pages/OrganizationDetailPage';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { HeritageFieldsPage } from './pages/master-data/HeritageFieldsPage';
+import { SpecializationsPage } from './pages/master-data/SpecializationsPage';
 
 export default function App() {
 
@@ -48,6 +51,17 @@ export default function App() {
           <Route path="/organization/request" element={<CreateOrganizationPage />} />
           <Route path="/organization/pending" element={<PendingOrganizationsPage />} />
           <Route path="/organization" element={<Navigate to="/organization/list" replace />} />
+
+          {/* --- CỤM ROUTE MASTER DATA (QUẢN LÝ) --- */}
+          {/* 3. PROTECTED ROUTES (Chỉ DÀNH RIÊNG cho SYSTEM_ADMIN) */}
+          <Route element={<ProtectedRoute allowedRoles={['SYSTEM_ADMIN']} />}>
+            {/* Module Master Data (Quản lý) */}
+            <Route path="/master-data/heritage-fields" element={<HeritageFieldsPage />} />
+            <Route path="/master-data/specializations" element={<SpecializationsPage />} />
+
+            {/* Duyệt yêu cầu tổ chức */}
+            <Route path="/organization/pending" element={<div>Duyệt tổ chức</div>} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
