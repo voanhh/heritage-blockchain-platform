@@ -16,6 +16,7 @@ import OrganizationDetailPage from './pages/OrganizationDetailPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { HeritageFieldsPage } from './pages/master-data/HeritageFieldsPage';
 import { SpecializationsPage } from './pages/master-data/SpecializationsPage';
+import { UserManagementPage } from './pages/master-data/UserManagementPage';
 
 export default function App() {
 
@@ -58,7 +59,7 @@ export default function App() {
             {/* Module Master Data (Quản lý) */}
             <Route path="/master-data/heritage-fields" element={<HeritageFieldsPage />} />
             <Route path="/master-data/specializations" element={<SpecializationsPage />} />
-
+            <Route path="/master-data/users" element={<UserManagementPage />} />
             {/* Duyệt yêu cầu tổ chức */}
             <Route path="/organization/pending" element={<div>Duyệt tổ chức</div>} />
           </Route>
