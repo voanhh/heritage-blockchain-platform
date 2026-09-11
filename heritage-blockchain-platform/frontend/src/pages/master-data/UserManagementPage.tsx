@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Search, UserCheck, ShieldAlert, Award, X, Check, RefreshCw } from 'lucide-react';
-import { userAndExpertApi, User, Specialization } from '../../api/userAndExpert.api';
+import { Search, UserCheck, ShieldAlert, Award, X, Check, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { userAndExpertApi, User, Specialization, PaginationMeta } from '../../api/userAndExpert.api';
 
 export function UserManagementPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -8,18 +8,36 @@ export function UserManagementPage() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
+  // 🟢 State quản lý Phân trang
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+
   // State phục vụ Modal phân quyền
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedSpecIds, setSelectedSpecIds] = useState<string[]>([]);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch dữ liệu
-  const fetchUsers = async () => {
+  // Fetch danh sách người dùng khi page hoặc search thay đổi
+  const fetchUsers = async (targetPage = page) => {
     try {
       setLoading(true);
-      const res = await userAndExpertApi.getUsers({ search });
+      const res = await userAndExpertApi.getUsers({
+        page: targetPage,
+        limit: 25,
+        search,
+      });
+
       if (res.data.success) {
         setUsers(res.data.data);
+        if (res.data.pagination) {
+          setPagination(res.data.pagination);
+        }
       }
     } catch (err) {
       console.error('Lỗi khi tải danh sách user:', err);
@@ -29,23 +47,51 @@ export function UserManagementPage() {
   };
 
   useEffect(() => {
-    fetchUsers();
-    // Fetch danh mục chuyên môn 1 lần
+    fetchUsers(page);
+  }, [page]);
+
+  useEffect(() => {
+    // Tải danh mục chuyên môn 1 lần
     userAndExpertApi.getSpecializations().then((res) => {
       if (res.data.success) setSpecializations(res.data.data);
     });
   }, []);
 
-  // Xử lý tìm kiếm (Debounce hoặc bấm Enter / Submit)
+  // Submit tìm kiếm -> reset về trang 1
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchUsers();
+    setPage(1);
+    fetchUsers(1);
   };
 
-  // Mở Modal Phân quyền Expert
-  const openAssignModal = (user: User) => {
+  // 🟢 Mở Modal & Tải chuyên môn CŨ nếu đã là Expert
+  const openAssignModal = async (user: User) => {
     setSelectedUser(user);
-    setSelectedSpecIds([]); // Hoặc fetch chuyên môn hiện tại của user nếu muốn
+    const isExpert = user.role === 'INDEPENDENT_EXPERT' || user.role === 'ORG_EXPERT';
+
+    if (isExpert) {
+      try {
+        setLoadingModal(true);
+        // Gọi API lấy hồ sơ chuyên gia hiện tại
+        const res = await userAndExpertApi.getExpertByUserId(user.id);
+        if (res.data.success && res.data.data) {
+          // Trích xuất danh sách ID chuyên môn đã có
+          const currentSpecIds = res.data.data.specializationMappings?.map(
+            (m: any) => m.specializationId
+          ) || [];
+          setSelectedSpecIds(currentSpecIds);
+        } else {
+          setSelectedSpecIds([]);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải chuyên môn cũ:', error);
+        setSelectedSpecIds([]);
+      } finally {
+        setLoadingModal(false);
+      }
+    } else {
+      setSelectedSpecIds([]);
+    }
   };
 
   // Toggle chọn checkbox Chuyên môn
@@ -55,7 +101,7 @@ export function UserManagementPage() {
     );
   };
 
-  // Gọi API Bổ nhiệm Expert
+  // Bổ nhiệm Expert
   const handleAssignExpert = async () => {
     if (!selectedUser) return;
     if (selectedSpecIds.length === 0) {
@@ -71,7 +117,7 @@ export function UserManagementPage() {
       });
       alert('Cập nhật quyền Chuyên gia thành công!');
       setSelectedUser(null);
-      fetchUsers(); // Reload lại danh sách
+      fetchUsers(page); // Reload lại danh sách ở trang hiện tại
     } catch (error: any) {
       alert(error.response?.data?.message || 'Có lỗi xảy ra!');
     } finally {
@@ -79,7 +125,7 @@ export function UserManagementPage() {
     }
   };
 
-  // Gọi API Cắt chức Expert
+  // Cắt chức Expert
   const handleRevokeExpert = async (user: User) => {
     if (!window.confirm(`Bạn có chắc muốn thu hồi quyền Chuyên gia của ${user.fullName}?`)) return;
 
@@ -87,7 +133,7 @@ export function UserManagementPage() {
       setLoading(true);
       await userAndExpertApi.revokeExpert(user.id);
       alert('Đã thu hồi quyền thành công!');
-      fetchUsers();
+      fetchUsers(page);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Có lỗi xảy ra!');
     } finally {
@@ -161,10 +207,10 @@ export function UserManagementPage() {
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${isExpert
-                            ? 'bg-purple-100 text-purple-800'
-                            : user.role.includes('ADMIN')
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-stone-100 text-slate-600'
+                          ? 'bg-purple-100 text-purple-800'
+                          : user.role.includes('ADMIN')
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-stone-100 text-slate-600'
                           }`}
                       >
                         {user.role}
@@ -195,6 +241,37 @@ export function UserManagementPage() {
             )}
           </tbody>
         </table>
+
+        {/* 🟢 THANH PHÂN TRANG (PAGINATION) */}
+        {!loading && pagination.totalPages > 0 && (
+          <div className="flex items-center justify-between border-t border-stone-200 bg-stone-50 px-6 py-3">
+            <span className="text-xs text-slate-500">
+              Hiển thị {users.length} trên tổng số <strong>{pagination.total}</strong> người dùng
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                className="flex items-center gap-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-stone-100 disabled:opacity-50"
+              >
+                <ChevronLeft size={14} /> Trang trước
+              </button>
+
+              <span className="text-xs font-semibold text-slate-700 px-2">
+                Trang {pagination.page} / {pagination.totalPages}
+              </span>
+
+              <button
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((prev) => Math.min(prev + 1, pagination.totalPages))}
+                className="flex items-center gap-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-stone-100 disabled:opacity-50"
+              >
+                Trang sau <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* MODAL PHÂN QUYỀN EXPERT */}
@@ -214,30 +291,38 @@ export function UserManagementPage() {
               <p className="mb-2 text-xs font-semibold text-slate-500 uppercase">
                 Chọn lĩnh vực chuyên môn phụ trách:
               </p>
-              <div className="max-h-60 overflow-y-auto space-y-2 border border-stone-200 rounded-lg p-3">
-                {specializations.map((spec) => {
-                  const isChecked = selectedSpecIds.includes(spec.id);
-                  return (
-                    <label
-                      key={spec.id}
-                      className={`flex items-center justify-between rounded-md p-2 text-sm cursor-pointer border ${isChecked ? 'border-emerald-500 bg-emerald-50/50' : 'border-stone-100 hover:bg-stone-50'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Award size={16} className={isChecked ? 'text-emerald-600' : 'text-slate-400'} />
-                        <span className="font-medium text-slate-700">{spec.name}</span>
-                        <span className="text-xs text-slate-400">({spec.code})</span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleSpecialization(spec.id)}
-                        className="h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
-                      />
-                    </label>
-                  );
-                })}
-              </div>
+
+              {loadingModal ? (
+                <div className="py-8 text-center text-slate-400">
+                  <RefreshCw className="mx-auto animate-spin" size={20} />
+                  <p className="mt-1 text-xs">Đang tải thông tin chuyên môn cũ...</p>
+                </div>
+              ) : (
+                <div className="max-h-60 overflow-y-auto space-y-2 border border-stone-200 rounded-lg p-3">
+                  {specializations.map((spec) => {
+                    const isChecked = selectedSpecIds.includes(spec.id);
+                    return (
+                      <label
+                        key={spec.id}
+                        className={`flex items-center justify-between rounded-md p-2 text-sm cursor-pointer border ${isChecked ? 'border-emerald-500 bg-emerald-50/50' : 'border-stone-100 hover:bg-stone-50'
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Award size={16} className={isChecked ? 'text-emerald-600' : 'text-slate-400'} />
+                          <span className="font-medium text-slate-700">{spec.name}</span>
+                          <span className="text-xs text-slate-400">({spec.code})</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleSpecialization(spec.id)}
+                          className="h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end gap-3 border-t border-stone-200 pt-4">
@@ -249,7 +334,7 @@ export function UserManagementPage() {
               </button>
               <button
                 onClick={handleAssignExpert}
-                disabled={isSubmitting}
+                disabled={isSubmitting || loadingModal}
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
               >
                 <Check size={16} />

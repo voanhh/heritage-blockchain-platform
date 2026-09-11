@@ -13,7 +13,7 @@ export class UserService {
     role?: UserRole
   }) {
     const page = Math.max(1, Number(params.page)) || 1;
-    const limit = Math.max(1, Math.min(50), Number(params.limit) || 10);
+    const limit = Math.max(1, Math.min(25, Number(params.limit)) || 10);
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.userRepo
