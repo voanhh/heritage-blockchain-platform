@@ -45,4 +45,39 @@ export class ExpertController {
       return res.status(400).json({ success: false, message: error.message });
     }
   }
+  /**
+   * GET /api/experts/user/:userId
+   */
+  static async getExpertByUserId(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thiếu thông tin userId',
+        });
+      }
+
+      const expert = await ExpertService.getExpertByUserId(userId as string);
+
+      if (!expert) {
+        return res.status(404).json({
+          success: false,
+          message: 'Người dùng này chưa có hồ sơ Chuyên gia',
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: expert,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Lỗi hệ thống khi lấy thông tin chuyên gia',
+      });
+    }
+  }
 }
+

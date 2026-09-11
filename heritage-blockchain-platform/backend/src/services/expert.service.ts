@@ -8,6 +8,8 @@ import { UserRole } from "../types/enums/rbac.js";
 
 export class ExpertService {
 
+  private static expertRepo = AppDataSource.getRepository(Expert);
+
   //Cập nhật quyền expert
   static async assignOrUpdateExpertByAdmin(params: {
     performerRole: UserRole,
@@ -83,5 +85,19 @@ export class ExpertService {
         newRole: user.role,
       };
     });
+  }
+
+  //get expert specialization list by user id
+  static async getExpertByUserId(userId: string) {
+    const expert = await this.expertRepo.findOne({
+      where: { userId },
+      relations: [
+        'user',
+        'specializationMappings',
+        'specializationMappings.specialization',
+      ],
+    });
+
+    return expert;
   }
 }

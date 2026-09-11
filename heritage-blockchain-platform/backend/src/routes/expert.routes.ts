@@ -25,4 +25,10 @@ expertRoute.delete(
   ExpertController.adminRevokeExpert
 );
 
+
+expertRoute.get(
+  '/user/:userId',
+  requireRole([UserRole.SYSTEM_ADMIN, UserRole.ORG_ADMIN]),
+  ExpertController.getExpertByUserId
+);
 export default expertRoute;
