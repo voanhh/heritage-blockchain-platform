@@ -104,12 +104,12 @@ export class VerificationController {
   }
 
   /**
-   * 4. Admin kích hoạt lại Auto Matching thủ công nếu cần
+   * 4. Admin kích hoạt Auto Matching
    * POST /api/verifications/heritage/:heritageId/auto-assign
    */
   static async triggerAutoAssign(req: Request, res: Response) {
     try {
-      const requiredExperts = req.body;
+      const { requiredExperts } = req.body;
       const { heritageId } = req.params;
       const result = await VerificationService.autoAssignExperts(heritageId as string, requiredExperts);
 

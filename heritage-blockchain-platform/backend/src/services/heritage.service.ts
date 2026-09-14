@@ -109,9 +109,6 @@ export class HeritageService {
     heritage.status = HeritageStatus.SUBMITTED;
     await this.heritageRepository.save(heritage);
 
-    // 🟢 MATCHING & GÁN CHUYÊN GIA
-    await VerificationService.autoAssignExperts(heritage.id as string);
-
     return heritage;
   }
 

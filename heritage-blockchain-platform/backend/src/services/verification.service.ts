@@ -23,7 +23,6 @@ export class VerificationService {
     if (requiredExperts < 1) {
       throw new Error('INVALID_EXPERT_COUNT');
     }
-
     const heritage = await this.heritageRepo.findOne({
       where: { id: heritageId },
     });
