@@ -2,6 +2,7 @@ import { AppDataSource } from '../config/database.js';
 import { Heritage } from '../models/heritage.model.js';
 import { CreateHeritageDto, UpdateStatusDto } from '../types/dto/heritage.dto.js';
 import { HeritageStatus } from '../types/enums/heritage.enum.js';
+import { VerificationService } from './verification.service.js';
 
 
 export class HeritageService {
@@ -106,7 +107,12 @@ export class HeritageService {
     }
 
     heritage.status = HeritageStatus.SUBMITTED;
-    return this.heritageRepository.save(heritage);
+    await this.heritageRepository.save(heritage);
+
+    // 🟢 MATCHING & GÁN CHUYÊN GIA
+    await VerificationService.autoAssignExperts(heritage.id as string);
+
+    return heritage;
   }
 
   static async updateHeritageStatus(id: string, status: UpdateStatusDto) {

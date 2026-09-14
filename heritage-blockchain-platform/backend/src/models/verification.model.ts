@@ -1,13 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Relation } from 'typeorm';
 import { Heritage } from './heritage.model.js';
-import { User } from './user.model.js';
 import { Expert } from './expert.model.js';
-
-export enum VerificationStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED'
-}
+import { VerificationStatus } from '../types/enums/verification.enum.js';
 
 @Entity({ name: 'verifications' })
 export class Verification {
