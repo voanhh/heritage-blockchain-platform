@@ -7,28 +7,26 @@ import { ReviewProgressTab } from '../components/verification/ReviewProgressTab'
 import { heritageApi } from '../services/heritage.api';
 import type { Heritage } from '../types/heritage';
 import { useAuthStore } from '../store/authStore';
-// 👈 Thay bằng hook/context Auth của dự án bạn
 
 export function VerificationPage() {
-  const user = useAuthStore((state) => state.user); // Lấy thông tin user hiện tại (ví dụ: user.role = 'EXPERT' hoặc 'ADMIN')
+  const user = useAuthStore((state) => state.user);
 
   // Xác định quyền hạn
   const isExpert = ['INDEPENDENT_EXPERT', 'ORG_EXPERT'].includes(user?.role || '');
   const isAdmin = ['SYSTEM_ADMIN', 'ORG_ADMIN'].includes(user?.role || '');
-  const hasBothRoles = isExpert && isAdmin; // Hoặc SUPER_ADMIN
+  const hasBothRoles = isExpert && isAdmin;
 
-  // State quản lý Tab (Mặc định chọn tab phù hợp với Role)
+  // State quản lý Tab
   const [activeTab, setActiveTab] = useState<'my-assignments' | 'all-reviews'>(
     isExpert ? 'my-assignments' : 'all-reviews'
   );
 
   // States Dữ liệu
   const [myAssignments, setMyAssignments] = useState<Verification[]>([]);
-  const [underReviewHeritages, setUnderReviewHeritages] = useState<Heritage[]>([]);
+  const [adminHeritages, setAdminHeritages] = useState<Heritage[]>([]);
   const [selectedHeritageVerifications, setSelectedHeritageVerifications] = useState<Verification[]>([]);
   const [selectedHeritageId, setSelectedHeritageId] = useState<string | null>(null);
 
-  const [voteNotes, setVoteNotes] = useState<Record<string, string>>({});
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -42,37 +40,44 @@ export function VerificationPage() {
     }
   }, []);
 
-  // 2. Tải danh sách hồ sơ cho Admin
-  const loadUnderReviewHeritages = useCallback(async () => {
+  // 2. 🟢 TẢI ĐẦY ĐỦ TẤT CẢ HỒ SƠ CHO ADMIN (Chờ gán, Đang duyệt, Đã chấp thuận, Đã từ chối)
+  const loadAdminHeritages = useCallback(async () => {
     try {
-      const [submittedRes, underReviewRes] = await Promise.all([
+      const [submittedRes, underReviewRes, verifiedRes, rejectedRes] = await Promise.all([
         heritageApi.list({ status: 'SUBMITTED' }),
-        heritageApi.list({ status: 'UNDER_REVIEW' })
+        heritageApi.list({ status: 'UNDER_REVIEW' }),
+        heritageApi.list({ status: 'VERIFIED' }),
+        heritageApi.list({ status: 'REJECTED' }),
       ]);
-      const combined = [...(submittedRes.data?.data || []), ...(underReviewRes.data?.data || [])];
-      setUnderReviewHeritages(combined);
+
+      const combined = [
+        ...(submittedRes.data?.data || []),
+        ...(underReviewRes.data?.data || []),
+        ...(verifiedRes.data?.data || []),
+        ...(rejectedRes.data?.data || []),
+      ];
+
+      setAdminHeritages(combined);
     } catch {
       toast.error('Lỗi nạp danh sách hồ sơ thẩm định');
     }
   }, []);
 
-  // 🟢 CHỈ TẢI API TƯƠNG ỨNG VỚI ROLE (Tối ưu performance)
   const refreshData = useCallback(async () => {
     setLoading(true);
     const apiTasks: Promise<void>[] = [];
 
     if (isExpert) apiTasks.push(loadMyAssignments());
-    if (isAdmin) apiTasks.push(loadUnderReviewHeritages());
+    if (isAdmin) apiTasks.push(loadAdminHeritages());
 
     await Promise.all(apiTasks);
     setLoading(false);
-  }, [isExpert, isAdmin, loadMyAssignments, loadUnderReviewHeritages]);
+  }, [isExpert, isAdmin, loadMyAssignments, loadAdminHeritages]);
 
   useEffect(() => {
     void refreshData();
   }, [refreshData]);
 
-  // Cập nhật tab active ban đầu nếu thông tin user nạp chậm
   useEffect(() => {
     if (isExpert && !isAdmin) setActiveTab('my-assignments');
     if (isAdmin && !isExpert) setActiveTab('all-reviews');
@@ -89,11 +94,16 @@ export function VerificationPage() {
     }
   };
 
-  // Kích hoạt Auto Match (cho Admin)
-  const handleAutoAssign = async (heritageId: string, count = 5) => {
+  // 🟢 Kích hoạt Auto Match với số lượng chuyên gia linh hoạt do Admin chọn
+  const handleAutoAssign = async (heritageId: string, count: number) => {
+    if (!count || count < 1) {
+      toast.error('Số lượng chuyên gia phải ít nhất là 1');
+      return;
+    }
+
     try {
-      const res = await verificationApi.triggerAutoAssign(heritageId, count);
-      toast.success(res.data?.data?.message || `Đã tự động phân công ${count} chuyên gia!`);
+      const res = await verificationApi.triggerAutoAssign(heritageId, Number(count));
+      toast.success(res.data?.message || `Đã tự động phân công ${count} chuyên gia!`);
       await refreshData();
       if (selectedHeritageId === heritageId) {
         await handleSelectHeritage(heritageId);
@@ -103,24 +113,7 @@ export function VerificationPage() {
     }
   };
 
-  // Bỏ phiếu (cho Chuyên gia)
-  const handleVote = async (verificationId: string, status: 'APPROVED' | 'REJECTED' | 'ABSTAINED') => {
-    const notes = voteNotes[verificationId] || '';
-    try {
-      const res = await verificationApi.submitVote(verificationId, { status, notes });
-      toast.success(res.data?.message || 'Gửi đánh giá thành công!');
 
-      setVoteNotes((prev) => {
-        const updated = { ...prev };
-        delete updated[verificationId];
-        return updated;
-      });
-
-      await refreshData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gửi biểu quyết thất bại');
-    }
-  };
 
   // Lọc dữ liệu theo từ khóa tìm kiếm
   const filteredAssignments = myAssignments.filter((item) => {
@@ -132,7 +125,7 @@ export function VerificationPage() {
     );
   });
 
-  const filteredUnderReviewHeritages = underReviewHeritages.filter((item) => {
+  const filteredAdminHeritages = adminHeritages.filter((item) => {
     const keyword = search.trim().toLowerCase();
     if (!keyword) return true;
     return item.name.toLowerCase().includes(keyword) || item.heritageCode.toLowerCase().includes(keyword);
@@ -151,7 +144,7 @@ export function VerificationPage() {
           </h1>
           <p className="mt-1 text-sm text-slate-600">
             {isAdmin
-              ? 'Tự động gán Hội đồng chuyên gia và giám sát tiến độ biểu quyết thời gian thực.'
+              ? 'Phân công Hội đồng chuyên gia và giám sát tiến độ biểu quyết thời gian thực.'
               : 'Đánh giá, đưa ra ý kiến chuyên môn và biểu quyết chấp thuận/từ chối hồ sơ di sản.'}
           </p>
         </div>
@@ -165,7 +158,7 @@ export function VerificationPage() {
         </button>
       </div>
 
-      {/* 🔴 CHỈ HIỂN THỊ THANH TABS KHI USER CÓ CẢ 2 ROLES */}
+      {/* Tabs khi User có cả 2 Role */}
       {hasBothRoles && (
         <div className="flex border-b border-stone-200">
           <button
@@ -188,7 +181,7 @@ export function VerificationPage() {
             onClick={() => setActiveTab('all-reviews')}
           >
             <Users size={18} />
-            Theo dõi tiến độ Thẩm định ({underReviewHeritages.length})
+            Theo dõi tiến độ Thẩm định ({adminHeritages.length})
           </button>
         </div>
       )}
@@ -204,20 +197,18 @@ export function VerificationPage() {
         />
       </div>
 
-      {/* 🟢 RENDER GIAO DIỆN THEO ROLE HOẶC TAB ĐANG CHỌN */}
+      {/* Render Tab Nhiệm vụ của Chuyên gia */}
       {activeTab === 'my-assignments' && isExpert && (
         <MyAssignmentsTab
           assignments={filteredAssignments}
           loading={loading}
-          voteNotes={voteNotes}
-          onNoteChange={(id, note) => setVoteNotes((prev) => ({ ...prev, [id]: note }))}
-          onVote={handleVote}
+          onRefresh={refreshData}
         />
       )}
 
       {activeTab === 'all-reviews' && isAdmin && (
         <ReviewProgressTab
-          heritages={filteredUnderReviewHeritages}
+          heritages={filteredAdminHeritages}
           selectedHeritageId={selectedHeritageId}
           selectedVerifications={selectedHeritageVerifications}
           onSelectHeritage={handleSelectHeritage}
