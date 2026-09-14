@@ -1,4 +1,4 @@
-import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus, Building2, Layers, Award, FolderCog } from 'lucide-react';
+import { Archive, Blocks, CheckCircle2, LayoutDashboard, ScrollText, LogOut, Power, PowerCircle, Goal, ChevronDown, ChevronRight, CheckSquare, FilePlus, Building2, Layers, Award, FolderCog, Users } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
@@ -70,8 +70,8 @@ export function Sidebar() {
             <button
               onClick={() => setIsMgmtMenuOpen(!isMgmtMenuOpen)}
               className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm font-medium transition-colors ${location.pathname.startsWith('/master-data')
-                  ? 'bg-stone-100 text-slate-900'
-                  : 'text-slate-600 hover:bg-stone-100'
+                ? 'bg-stone-100 text-slate-900'
+                : 'text-slate-600 hover:bg-stone-100'
                 }`}
             >
               <div className="flex items-center gap-3">
@@ -83,6 +83,16 @@ export function Sidebar() {
 
             {isMgmtMenuOpen && (
               <div className="mt-1 ml-4 space-y-1 border-l-2 border-stone-200 pl-3">
+
+                <NavLink
+                  to="/master-data/users"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 font-semibold text-emerald-800' : 'text-slate-600 hover:bg-stone-100'
+                    }`
+                  }
+                >
+                  <Users size={14} /> Người dùng & Chuyên gia
+                </NavLink>
                 <NavLink
                   to="/master-data/heritage-fields"
                   className={({ isActive }) =>

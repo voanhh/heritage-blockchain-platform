@@ -58,15 +58,3 @@ export type ApiResponse<T> = {
   data: T;
 };
 
-export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-
-export type Verification = {
-  id: string;
-  heritageId: string;
-  reviewerId?: string;
-  status: VerificationStatus;
-  notes?: string;
-  heritage?: Heritage;
-  createdAt: string;
-  updatedAt: string;
-};
