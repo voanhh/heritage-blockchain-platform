@@ -5,6 +5,7 @@ import { Verification } from './verification.model.js';
 import { BlockchainRecord } from './blockchain-record.model.js';
 import { HeritageStatus } from '../types/enums/heritage.enum.js';
 import { HeritageField } from './heritage-fields.model.js';
+import { LocationItem } from '../types/interface/heritage.js';
 
 @Entity({ name: 'heritages' })
 export class Heritage {
@@ -27,14 +28,30 @@ export class Heritage {
   @JoinColumn({ name: 'fieldId' })
   field: Relation<HeritageField>
 
+  @Column({ type: 'json' })
+  location: LocationItem[];
+
   @Column({ type: 'varchar' })
   source: string;
 
   @Column({ type: 'varchar' })
   sourceOrganization: string;
 
-  @Column({ type: 'text' })
-  sourceReference: string;
+  // Số hiệu quyết định / Căn cứ pháp lý (VD: "2684/QĐ-BVHTTDL")
+  @Column({ type: 'varchar', nullable: true })
+  sourceDocumentNumber?: string;
+
+  // Link tham khảo trên Internet (Tùy chọn)
+  @Column({ type: 'varchar', nullable: true })
+  sourceUrl?: string;
+
+  // Mã CID của tệp PDF scan quyết định gốc lưu trên IPFS (Bắt buộc cho Phase 5)
+  @Column({ type: 'varchar', nullable: true })
+  sourceDocumentCid?: string;
+
+  // Ngày/năm chính thức được công nhận/ghi danh
+  @Column({ type: 'date', nullable: true })
+  recognizedAt?: Date;
 
   @Column({ type: 'enum', enum: HeritageStatus, default: HeritageStatus.DRAFT })
   status: HeritageStatus;
