@@ -13,16 +13,36 @@ export type Heritage = {
   heritageCode: string;
   name: string;
   description: string;
-  category: string;
+  fieldId: string;
+  field?: {
+    id: string;
+    name: string;
+  };
+  location?: LocationItem[];
   source: string;
   sourceOrganization: string;
-  sourceReference: string;
+  sourceDocumentNumber?: string;
+  sourceUrl?: string;
+  sourceDocumentCid?: string;
+  recognizedAt?: string;
   status: HeritageStatus;
   createdBy?: string;
   verifiedBy?: string;
   createdAt: string;
   updatedAt: string;
 };
+
+export interface LocationItem {
+  province: string;
+  district?: string;
+  ward?: string;
+}
+
+export const locationItemSchema = z.object({
+  province: z.string().min(1, 'Tỉnh/Thành phố không được để trống'),
+  district: z.string().optional(),
+  ward: z.string().optional(),
+});
 
 export const heritagePayloadSchema = z.object({
   heritageCode: z.string()
@@ -39,14 +59,20 @@ export const heritagePayloadSchema = z.object({
   category: z.string()
     .min(1, 'Vui lòng nhập loại hình di sản'),
 
+  location: z.array(locationItemSchema)
+    .min(1, 'Vui lòng thêm ít nhất 1 địa điểm di sản'),
+
   source: z.string()
     .min(1, 'Vui lòng nhập nguồn dữ liệu'),
 
   sourceOrganization: z.string()
     .min(1, 'Vui lòng nhập tổ chức nguồn'),
 
-  sourceReference: z.string()
-    .min(1, 'Vui lòng nhập tài liêu tham chiếu'),
+  // Các trường thông tin pháp lý & IPFS CID
+  sourceDocumentNumber: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  sourceDocumentCid: z.string().optional(),
+  recognizedAt: z.string().optional(),
 });
 
 export type HeritagePayload = z.infer<typeof heritagePayloadSchema>;

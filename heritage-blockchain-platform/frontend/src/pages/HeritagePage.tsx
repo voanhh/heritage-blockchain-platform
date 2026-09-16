@@ -1,34 +1,36 @@
-// src/pages/HeritagePage.tsx
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { heritageApi } from '../services/heritage.api';
-import { masterDataApi } from '../api/masterData.api'; // Giả định API master data của bạn
+import { masterDataApi } from '../api/masterData.api';
+import { organizationApi } from '../api/organization.api';
 import type { Heritage, HeritagePayload, HeritageStatus } from '../types/heritage';
 
-import { HeritageForm, HeritageCategoryOption, OrganizationOption } from '../components/heritage/HeritageForm';
+import { HeritageForm } from '../components/heritage/HeritageForm';
 import { HeritageList } from '../components/heritage/HeritageList';
-import { organizationApi } from '../api/organization.api';
+
+interface DropdownOption {
+  id: string;
+  name: string;
+}
 
 export function HeritagePage() {
   const [heritages, setHeritages] = useState<Heritage[]>([]);
   const [editingHeritage, setEditingHeritage] = useState<HeritagePayload | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // 🟢 State lưu danh mục Loại hình & Tổ chức đang hoạt động
-  const [categories, setCategories] = useState<HeritageCategoryOption[]>([]);
-  const [organizations, setOrganizations] = useState<OrganizationOption[]>([]);
+  const [categories, setCategories] = useState<DropdownOption[]>([]);
+  const [organizations, setOrganizations] = useState<DropdownOption[]>([]);
 
   const [status, setStatus] = useState<HeritageStatus | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Tải danh sách hồ sơ di sản
   const loadHeritages = useCallback(async () => {
     setLoading(true);
     try {
       const response = await heritageApi.list({ status, search });
-      setHeritages(response.data.data);
+      setHeritages(response.data?.data || response.data || []);
     } catch {
       toast.error('Không thể tải danh sách hồ sơ di sản.');
     } finally {
@@ -36,20 +38,15 @@ export function HeritagePage() {
     }
   }, [search, status]);
 
-  // 🟢 Tải danh mục Loại hình và Tổ chức đang hoạt động
   const loadMasterData = async () => {
     try {
       const [catRes, orgRes] = await Promise.all([
         masterDataApi.getHeritageFields(),
-        organizationApi.getApprovedList(), // Gọi API lấy các tổ chức đã phê duyệt
+        organizationApi.getApprovedList(),
       ]);
 
-      // Set danh mục Loại hình di sản
       setCategories(catRes.data?.data || catRes.data || []);
-
-      // Set danh sách Tổ chức
-      const orgsData = orgRes.data?.data || orgRes.data || [];
-      setOrganizations(orgsData);
+      setOrganizations(orgRes.data?.data || orgRes.data || []);
     } catch (err) {
       console.error('Lỗi nạp danh mục dữ liệu:', err);
     }
@@ -77,9 +74,22 @@ export function HeritagePage() {
     }
   };
 
+  // Áp dụng Map giữa fieldId của Heritage sang category trong Form Payload
   const startEdit = (heritage: Heritage) => {
     setEditingId(heritage.id);
-    setEditingHeritage(heritage);
+    setEditingHeritage({
+      heritageCode: heritage.heritageCode,
+      name: heritage.name,
+      description: heritage.description,
+      category: heritage.fieldId || heritage.field?.id || '',
+      location: heritage.location || [],
+      source: heritage.source,
+      sourceOrganization: heritage.sourceOrganization,
+      sourceDocumentNumber: heritage.sourceDocumentNumber || '',
+      sourceUrl: heritage.sourceUrl || '',
+      sourceDocumentCid: heritage.sourceDocumentCid || '',
+      recognizedAt: heritage.recognizedAt ? new Date(heritage.recognizedAt).toISOString().split('T')[0] : '',
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -119,7 +129,6 @@ export function HeritagePage() {
         </button>
       </div>
 
-      {/* 🟢 Truyền categories & organizations xuống HeritageForm */}
       <HeritageForm
         initialData={editingHeritage}
         categories={categories}
