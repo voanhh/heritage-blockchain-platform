@@ -57,9 +57,13 @@ export class HeritageService {
       name: heritageData.name!.trim(),
       description: heritageData.description!.trim(),
       fieldId: heritageData.category!.trim(),
+      location: heritageData.location,
       source: heritageData.source!.trim(),
       sourceOrganization: heritageData.sourceOrganization!.trim(),
-      sourceReference: heritageData.sourceReference!.trim(),
+      sourceDocumentNumber: heritageData.sourceDocumentNumber?.trim(),
+      sourceUrl: heritageData.sourceUrl?.trim(),
+      sourceDocumentCid: heritageData.sourceDocumentCid?.trim(),
+      recognizedAt: heritageData.recognizedAt ? new Date(heritageData.recognizedAt) : 'undefined',
       status: HeritageStatus.DRAFT
     });
 
@@ -88,9 +92,13 @@ export class HeritageService {
     heritage.name = heritageData.name?.trim() ?? heritage.name;
     heritage.description = heritageData.description?.trim() ?? heritage.description;
     heritage.fieldId = heritageData.category?.trim() ?? heritage.fieldId;
+    heritage.location = heritageData.location ?? heritage.location;
     heritage.source = heritageData.source?.trim() ?? heritage.source;
     heritage.sourceOrganization = heritageData.sourceOrganization?.trim() ?? heritage.sourceOrganization;
-    heritage.sourceReference = heritageData.sourceReference?.trim() ?? heritage.sourceReference;
+    heritage.sourceDocumentNumber = heritageData.sourceDocumentNumber?.trim() ?? heritage.sourceDocumentNumber;
+    heritage.sourceUrl = heritageData.sourceUrl?.trim() ?? heritage.sourceUrl;
+    heritage.sourceDocumentCid = heritageData.sourceDocumentCid?.trim() ?? heritage.sourceDocumentCid;
+    heritage.recognizedAt = heritageData.recognizedAt ? new Date(heritageData.recognizedAt) : heritage.recognizedAt;
 
     return this.heritageRepository.save(heritage);
   }

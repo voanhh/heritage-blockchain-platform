@@ -1,7 +1,21 @@
 // src/types/dto/create-heritage.dto.ts
-import { IsNotEmpty, IsString, IsOptional, MaxLength, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, MaxLength, IsEnum, IsArray, ValidateNested, IsDateString } from 'class-validator';
 import { HeritageStatus } from '../enums/heritage.enum.js';
+import { Type } from 'class-transformer';
 
+export class LocationItemDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Tỉnh/Thành phố không được để trống' })
+  province!: string;
+
+  @IsString()
+  @IsOptional()
+  district?: string;
+
+  @IsString()
+  @IsOptional()
+  ward?: string;
+}
 export class CreateHeritageDto {
   @IsString()
   @IsNotEmpty({ message: 'Mã hồ sơ không được để trống' })
@@ -17,7 +31,13 @@ export class CreateHeritageDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Thể loại không được để trống' })
-  category!: string;
+  category!: string; // nhận từ client
+
+  @IsArray({ message: 'Danh sách địa điểm phải là một mảng' })
+  @ValidateNested({ each: true })
+  @Type(() => LocationItemDto)
+  @IsNotEmpty({ message: 'Địa điểm không được để trống' })
+  location!: LocationItemDto[];
 
   @IsString()
   @IsNotEmpty()
@@ -27,8 +47,20 @@ export class CreateHeritageDto {
   sourceOrganization!: string;
 
   @IsString()
-  //IsOptional() hien tai khong cho de trong
-  sourceReference?: string;
+  @IsOptional()
+  sourceDocumentNumber?: string;
+
+  @IsString()
+  @IsOptional()
+  sourceUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  sourceDocumentCid?: string;
+
+  @IsDateString({}, { message: 'Ngày ghi danh phải đúng định dạng YYYY-MM-DD' })
+  @IsOptional()
+  recognizedAt?: string;
 }
 
 export class UpdateStatusDto {
