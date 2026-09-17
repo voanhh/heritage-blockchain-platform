@@ -21,4 +21,11 @@ uploadRouter.post(
   UploadController.uploadMultipleDocuments
 );
 
+// Endpoint cho Heritage Media (Hybrid)
+uploadRouter.post(
+  '/heritage-media',
+  upload.single('file'),
+  UploadController.uploadMedia
+);
+
 export default uploadRouter;
