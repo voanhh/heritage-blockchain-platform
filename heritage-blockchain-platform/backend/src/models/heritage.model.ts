@@ -6,6 +6,7 @@ import { BlockchainRecord } from './blockchain-record.model.js';
 import { HeritageStatus } from '../types/enums/heritage.enum.js';
 import { HeritageField } from './heritage-fields.model.js';
 import { LocationItem } from '../types/interface/heritage.js';
+import { HeritageMedia } from './heritage-media.model.js';
 
 @Entity({ name: 'heritages' })
 export class Heritage {
@@ -62,6 +63,9 @@ export class Heritage {
   @ManyToOne(() => User, user => user.createdHeritages, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'createdBy' })
   creator: Relation<User>;
+
+  @OneToMany(() => HeritageMedia, media => media.heritage,)
+  media: Relation<HeritageMedia[]>;
 
   @OneToMany(() => HeritageVersion, version => version.heritage)
   versions: Relation<HeritageVersion>[];

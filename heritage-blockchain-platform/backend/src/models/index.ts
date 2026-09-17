@@ -10,7 +10,8 @@ import { HeritageFieldSpecialization } from './heritage-field-specialization.mod
 import { HeritageField } from './heritage-fields.model.js';
 import { Specialization } from './specialization.model.js';
 import { OrganizationJoinRequest } from './organization-join-request.model.js';
-
+import { HeritageMedia } from './heritage-media.model.js';
+import { HeritageVersionMedia } from './heritage-version-media.model.js';
 
 // Relationship mappings are handled via TypeORM decorators and/or queries.
 export {
@@ -25,5 +26,7 @@ export {
   HeritageField,
   HeritageFieldSpecialization,
   Specialization,
-  OrganizationJoinRequest
+  OrganizationJoinRequest,
+  HeritageMedia,
+  HeritageVersionMedia
 };
