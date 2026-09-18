@@ -13,16 +13,52 @@ export type Heritage = {
   heritageCode: string;
   name: string;
   description: string;
-  category: string;
+  fieldId: string;
+  field?: {
+    id: string;
+    name: string;
+  };
+  location?: LocationItem[];
   source: string;
   sourceOrganization: string;
-  sourceReference: string;
+  sourceDocumentNumber?: string;
+  sourceUrl?: string;
+  sourceDocumentCid?: string;
+  recognizedAt?: string;
   status: HeritageStatus;
   createdBy?: string;
   verifiedBy?: string;
   createdAt: string;
   updatedAt: string;
+  media: HeritageMediaItem[]
 };
+
+export interface LocationItem {
+  province: string;
+  district?: string;
+  ward?: string;
+}
+
+export const heritageMediaItemSchema = z.object({
+  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO'], {
+    error: 'Loại phương tiện không hợp lệ',
+  }),
+  url: z.string().min(1, 'URL phương tiện không được để trống'),
+  cid: z.string().optional(),
+  caption: z.string().optional(),
+  order: z.number().optional(),
+  fileName: z.string().optional(),
+  mimeType: z.string().optional(),
+  fileSize: z.number().optional(),
+  thumbnailUrl: z.string().optional(),
+});
+export type HeritageMediaItem = z.infer<typeof heritageMediaItemSchema>;
+
+export const locationItemSchema = z.object({
+  province: z.string().min(1, 'Tỉnh/Thành phố không được để trống'),
+  district: z.string().optional(),
+  ward: z.string().optional(),
+});
 
 export const heritagePayloadSchema = z.object({
   heritageCode: z.string()
@@ -39,14 +75,26 @@ export const heritagePayloadSchema = z.object({
   category: z.string()
     .min(1, 'Vui lòng nhập loại hình di sản'),
 
+  location: z.array(locationItemSchema)
+    .min(1, 'Vui lòng thêm ít nhất 1 địa điểm di sản'),
+
   source: z.string()
     .min(1, 'Vui lòng nhập nguồn dữ liệu'),
 
   sourceOrganization: z.string()
     .min(1, 'Vui lòng nhập tổ chức nguồn'),
 
-  sourceReference: z.string()
-    .min(1, 'Vui lòng nhập tài liêu tham chiếu'),
+  // Các trường thông tin pháp lý & IPFS CID
+  sourceDocumentNumber: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  sourceDocumentCid: z.string()
+    .optional()
+    .refine(
+      (val) => !val || /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|bafy[a-z0-9]{50,})$/.test(val),
+      { message: 'Mã IPFS CID không đúng định dạng chuẩn (phải bắt đầu bằng Qm... hoặc bafy...)' }
+    ),
+  recognizedAt: z.string().optional(),
+  media: z.array(heritageMediaItemSchema).optional().default([]),
 });
 
 export type HeritagePayload = z.infer<typeof heritagePayloadSchema>;
@@ -57,4 +105,12 @@ export type ApiResponse<T> = {
   message: string;
   data: T;
 };
+
+export interface LegalDocUploadResponse {
+  url: string;
+  cid: string;
+  fileName: string;
+}
+
+
 
