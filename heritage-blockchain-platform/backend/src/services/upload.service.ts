@@ -116,4 +116,20 @@ export class UploadService {
       cid,
     };
   }
+
+  static async uploadLegalDocumentToIPFS(
+    file: Express.Multer.File
+  ): Promise<{ cid: string; url: string; fileName: string }> {
+    // 1. Chỉ đẩy duy nhất lên IPFS/Pinata
+    const cid = await this.uploadToPinata(file.buffer, file.originalname);
+
+    // 2. Tạo đường dẫn xem trực tiếp từ IPFS Gateway
+    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+
+    return {
+      cid,
+      url: gatewayUrl,
+      fileName: file.originalname,
+    };
+  }
 }

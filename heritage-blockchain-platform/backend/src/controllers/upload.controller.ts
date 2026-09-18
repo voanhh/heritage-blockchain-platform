@@ -22,7 +22,7 @@ export class UploadController {
       );
     }
   }
-
+  //hybrid media
   static async uploadMultipleDocuments(req: Request, res: Response): Promise<void> {
     try {
       const files = req.files as Express.Multer.File[];
@@ -66,6 +66,24 @@ export class UploadController {
       console.error('Upload Heritage Media Error:', error);
       return res.status(500).json(
         errorHandler(500, error.message || 'Lỗi server khi upload file.')
+      );
+    }
+  }
+
+  static async uploadLegalDocument(req: Request, res: Response) {
+    try {
+      if (!req.file) {
+        return res.status(400).json(errorHandler(400, 'Không tìm thấy file tải lên'));
+      }
+
+      const result = await UploadService.uploadLegalDocumentToIPFS(req.file);
+
+      return res.status(200).json(
+        successHandler(200, 'Upload văn bản pháp lý thành công', result)
+      );
+    } catch (error) {
+      return res.status(500).json(
+        errorHandler(500, error instanceof Error ? error.message : 'Lỗi upload file')
       );
     }
   }
