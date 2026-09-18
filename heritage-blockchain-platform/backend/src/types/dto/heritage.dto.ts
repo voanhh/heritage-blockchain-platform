@@ -1,7 +1,8 @@
 // src/types/dto/create-heritage.dto.ts
-import { IsNotEmpty, IsString, IsOptional, MaxLength, IsEnum, IsArray, ValidateNested, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, MaxLength, IsEnum, IsArray, ValidateNested, IsDateString, IsNumber } from 'class-validator';
 import { HeritageStatus } from '../enums/heritage.enum.js';
 import { Type } from 'class-transformer';
+import { MediaType } from '../enums/media.enum.js';
 
 export class LocationItemDto {
   @IsString()
@@ -16,6 +17,45 @@ export class LocationItemDto {
   @IsOptional()
   ward?: string;
 }
+
+export class CreateHeritageMediaDto {
+  @IsEnum(MediaType, { message: 'Loại phương tiện không hợp lệ' })
+  @IsNotEmpty({ message: 'Loại phương tiện không được để trống' })
+  type!: MediaType;
+
+  @IsString()
+  @IsNotEmpty({ message: 'URL không được để trống' })
+  url!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Không tìm thấy CID' })
+  cid!: string;
+
+  @IsString()
+  @IsOptional()
+  caption?: string;
+
+  @IsNumber()
+  @IsOptional()
+  order?: number;
+
+  @IsString()
+  @IsOptional()
+  fileName?: string;
+
+  @IsString()
+  @IsOptional()
+  mimeType?: string;
+
+  @IsNumber()
+  @IsOptional()
+  fileSize?: number;
+
+  @IsString()
+  @IsOptional()
+  thumbnailUrl?: string;
+}
+
 export class CreateHeritageDto {
   @IsString()
   @IsNotEmpty({ message: 'Mã hồ sơ không được để trống' })
@@ -61,6 +101,13 @@ export class CreateHeritageDto {
   @IsDateString({}, { message: 'Ngày ghi danh phải đúng định dạng YYYY-MM-DD' })
   @IsOptional()
   recognizedAt?: string;
+
+  // 🟢 Mảng danh sách media đính kèm
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateHeritageMediaDto)
+  media?: CreateHeritageMediaDto[];
 }
 
 export class UpdateStatusDto {

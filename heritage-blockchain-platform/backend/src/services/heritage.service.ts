@@ -1,4 +1,5 @@
 import { AppDataSource } from '../config/database.js';
+import { HeritageMedia } from '../models/heritage-media.model.js';
 import { Heritage } from '../models/heritage.model.js';
 import { CreateHeritageDto, UpdateStatusDto } from '../types/dto/heritage.dto.js';
 import { HeritageStatus } from '../types/enums/heritage.enum.js';
@@ -52,22 +53,51 @@ export class HeritageService {
       throw new Error('HERITAGE_CODE_EXISTS');
     }
 
-    const newHeritage = this.heritageRepository.create({
-      heritageCode: heritageData.heritageCode!.trim(),
-      name: heritageData.name!.trim(),
-      description: heritageData.description!.trim(),
-      fieldId: heritageData.category!.trim(),
-      location: heritageData.location,
-      source: heritageData.source!.trim(),
-      sourceOrganization: heritageData.sourceOrganization!.trim(),
-      sourceDocumentNumber: heritageData.sourceDocumentNumber?.trim(),
-      sourceUrl: heritageData.sourceUrl?.trim(),
-      sourceDocumentCid: heritageData.sourceDocumentCid?.trim(),
-      recognizedAt: heritageData.recognizedAt ? new Date(heritageData.recognizedAt) : 'undefined',
-      status: HeritageStatus.DRAFT
-    });
+    return AppDataSource.transaction(async (transactionalEntityManager) => {
+      // 1. Tạo bản ghi Heritage
+      const newHeritage = transactionalEntityManager.create(Heritage, {
+        heritageCode: heritageData.heritageCode.trim(),
+        name: heritageData.name.trim(),
+        description: heritageData.description.trim(),
+        fieldId: heritageData.category.trim(),
+        location: heritageData.location,
+        source: heritageData.source.trim(),
+        sourceOrganization: heritageData.sourceOrganization.trim(),
+        sourceDocumentNumber: heritageData.sourceDocumentNumber?.trim(),
+        sourceUrl: heritageData.sourceUrl?.trim(),
+        sourceDocumentCid: heritageData.sourceDocumentCid?.trim(),
+        recognizedAt: heritageData.recognizedAt ? new Date(heritageData.recognizedAt) : undefined,
+        status: HeritageStatus.DRAFT,
+      });
 
-    return this.heritageRepository.save(newHeritage);
+      const savedHeritage = await transactionalEntityManager.save(Heritage, newHeritage);
+
+      // 2. Nếu có danh sách media đi kèm -> Tạo các bản ghi HeritageMedia
+      if (heritageData.media && heritageData.media.length > 0) {
+        const mediaEntities = heritageData.media.map((item, index) =>
+          transactionalEntityManager.create(HeritageMedia, {
+            heritageId: savedHeritage.id,
+            type: item.type,
+            url: item.url,
+            cid: item.cid || '',
+            caption: item.caption,
+            order: item.order ?? index,
+            fileName: item.fileName,
+            mimeType: item.mimeType,
+            fileSize: item.fileSize,
+            thumbnailUrl: item.thumbnailUrl,
+          })
+        );
+
+        await transactionalEntityManager.save(HeritageMedia, mediaEntities);
+      }
+
+      // 3. Trả về Heritage hoàn chỉnh kèm danh sách media
+      return transactionalEntityManager.findOne(Heritage, {
+        where: { id: savedHeritage.id },
+        relations: ['media'],
+      });
+    });
   }
 
   static async updateHeritage(id: string, heritageData: CreateHeritageDto) {
