@@ -3,6 +3,9 @@ import { FormEvent, useEffect, useState } from 'react';
 import { heritagePayloadSchema } from '../../types/heritage';
 import type { HeritagePayload, LocationItem } from '../../types/heritage';
 import { MediaUploader } from './MediaUploader';
+import axiosClient from '../../api/axiosClient';
+import toast from 'react-hot-toast';
+import { mediaApi } from '../../api/media.api';
 
 interface OptionItem {
   id: string;
@@ -42,7 +45,7 @@ export function HeritageForm({
   const [form, setForm] = useState<HeritagePayload>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
   const isEditing = Boolean(initialData);
-
+  const [uploadingDoc, setUploadingDoc] = useState(false);
   const [tempLoc, setTempLoc] = useState<LocationItem>({ province: '', district: '', ward: '' });
 
   useEffect(() => {
@@ -79,6 +82,29 @@ export function HeritageForm({
     }));
   };
 
+  const handleUploadLegalDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDoc(true);
+    try {
+      // 🟢 Gọi qua API module gọn gàng
+      const res = await mediaApi.uploadLegalDocument(file);
+      const { url, cid } = res.data;
+
+      // Tự động điền URL và IPFS CID vào Form State
+      setForm((prev) => ({
+        ...prev,
+        sourceUrl: url,
+        sourceDocumentCid: cid,
+      }));
+      toast.success('Đã tải lên văn bản pháp lý & khởi tạo CID IPFS thành công!');
+    } catch {
+      toast.error('Lỗi khi tải văn bản pháp lý');
+    } finally {
+      setUploadingDoc(false);
+    }
+  };
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -205,7 +231,43 @@ export function HeritageForm({
 
         <Field label="Số hiệu quyết định / căn cứ" value={form.sourceDocumentNumber || ''} onChange={(val) => setForm({ ...form, sourceDocumentNumber: val })} />
         <Field label="Đường dẫn tham khảo (URL)" value={form.sourceUrl || ''} onChange={(val) => setForm({ ...form, sourceUrl: val })} />
-        <Field label="Mã IPFS CID (Nếu có)" value={form.sourceDocumentCid || ''} onChange={(val) => setForm({ ...form, sourceDocumentCid: val })} />
+        <div className="md:col-span-2 rounded border border-stone-200 bg-stone-50 p-3.5 space-y-3">
+          <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+            <div>
+              <span className="text-sm font-medium text-slate-800">Văn bản / Quyết định pháp lý đính kèm</span>
+              <p className="text-[11px] text-stone-500">Tải file PDF quyết định hoặc dán trực tiếp mã CID IPFS nếu đã có</p>
+            </div>
+            <label className="cursor-pointer rounded bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-800 transition-colors">
+              {uploadingDoc ? 'Đang upload lên IPFS...' : '+ Tải file PDF quyết định'}
+              <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleUploadLegalDoc} disabled={uploadingDoc} />
+            </label>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Ô CID: Cho phép tự gõ/dán tay, tự sync URL Gateway nếu gõ tay */}
+            <Field
+              label="Mã IPFS CID (PDF Quyết định)"
+              value={form.sourceDocumentCid || ''}
+              error={errors.sourceDocumentCid?.[0]}
+              onChange={(cid) => {
+                const cleanCid = cid.trim();
+                setForm({
+                  ...form,
+                  sourceDocumentCid: cleanCid,
+                  // Tự sinh URL gateway nếu người dùng dán tay CID
+                  sourceUrl: cleanCid ? `https://gateway.pinata.cloud/ipfs/${cleanCid}` : form.sourceUrl
+                });
+              }}
+            />
+
+            {/* Ô URL: Tự điền khi upload/dán CID, nhưng vẫn cho phép chỉnh sửa nếu muốn link khác */}
+            <Field
+              label="Đường dẫn xem văn bản (URL)"
+              value={form.sourceUrl || ''}
+              onChange={(val) => setForm({ ...form, sourceUrl: val })}
+            />
+          </div>
+        </div>
 
         <label className="md:col-span-2">
           <span className="text-sm font-medium text-slate-700">Mô tả *</span>

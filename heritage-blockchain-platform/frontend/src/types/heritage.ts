@@ -87,7 +87,12 @@ export const heritagePayloadSchema = z.object({
   // Các trường thông tin pháp lý & IPFS CID
   sourceDocumentNumber: z.string().optional(),
   sourceUrl: z.string().optional(),
-  sourceDocumentCid: z.string().optional(),
+  sourceDocumentCid: z.string()
+    .optional()
+    .refine(
+      (val) => !val || /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|bafy[a-z0-9]{50,})$/.test(val),
+      { message: 'Mã IPFS CID không đúng định dạng chuẩn (phải bắt đầu bằng Qm... hoặc bafy...)' }
+    ),
   recognizedAt: z.string().optional(),
   media: z.array(heritageMediaItemSchema).optional().default([]),
 });
@@ -100,6 +105,12 @@ export type ApiResponse<T> = {
   message: string;
   data: T;
 };
+
+export interface LegalDocUploadResponse {
+  url: string;
+  cid: string;
+  fileName: string;
+}
 
 
 
