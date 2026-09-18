@@ -28,7 +28,7 @@ export class HeritageMedia {
   @Column({ type: 'text' })
   url?: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255 })
   cid: string;
 
   @Column({ type: 'text', nullable: true })

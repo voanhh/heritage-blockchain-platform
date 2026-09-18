@@ -89,6 +89,7 @@ export function HeritagePage() {
       sourceUrl: heritage.sourceUrl || '',
       sourceDocumentCid: heritage.sourceDocumentCid || '',
       recognizedAt: heritage.recognizedAt ? new Date(heritage.recognizedAt).toISOString().split('T')[0] : '',
+      media: heritage.media || [],
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

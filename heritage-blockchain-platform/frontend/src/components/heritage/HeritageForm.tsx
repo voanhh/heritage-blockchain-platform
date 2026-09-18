@@ -2,6 +2,7 @@ import { Edit3, Plus } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { heritagePayloadSchema } from '../../types/heritage';
 import type { HeritagePayload, LocationItem } from '../../types/heritage';
+import { MediaUploader } from './MediaUploader';
 
 interface OptionItem {
   id: string;
@@ -28,6 +29,7 @@ const emptyForm: HeritagePayload = {
   sourceDocumentNumber: '',
   sourceUrl: '',
   sourceDocumentCid: '',
+  media: []
 };
 
 export function HeritageForm({
@@ -48,6 +50,7 @@ export function HeritageForm({
       setForm({
         ...initialData,
         location: initialData.location || [], // Phòng thủ nếu null
+        media: initialData.media || [],
       });
     } else {
       setForm(emptyForm);
@@ -214,6 +217,13 @@ export function HeritageForm({
           />
           {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description[0]}</p>}
         </label>
+      </div>
+
+      <div className="md:col-span-2">
+        <MediaUploader
+          mediaList={form.media || []}
+          onChange={(newList) => setForm({ ...form, media: newList })}
+        />
       </div>
 
       <div className="mt-4 flex gap-2">

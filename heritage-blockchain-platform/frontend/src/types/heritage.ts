@@ -30,6 +30,7 @@ export type Heritage = {
   verifiedBy?: string;
   createdAt: string;
   updatedAt: string;
+  media: HeritageMediaItem[]
 };
 
 export interface LocationItem {
@@ -37,6 +38,21 @@ export interface LocationItem {
   district?: string;
   ward?: string;
 }
+
+export const heritageMediaItemSchema = z.object({
+  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO'], {
+    error: 'Loại phương tiện không hợp lệ',
+  }),
+  url: z.string().min(1, 'URL phương tiện không được để trống'),
+  cid: z.string().optional(),
+  caption: z.string().optional(),
+  order: z.number().optional(),
+  fileName: z.string().optional(),
+  mimeType: z.string().optional(),
+  fileSize: z.number().optional(),
+  thumbnailUrl: z.string().optional(),
+});
+export type HeritageMediaItem = z.infer<typeof heritageMediaItemSchema>;
 
 export const locationItemSchema = z.object({
   province: z.string().min(1, 'Tỉnh/Thành phố không được để trống'),
@@ -73,6 +89,7 @@ export const heritagePayloadSchema = z.object({
   sourceUrl: z.string().optional(),
   sourceDocumentCid: z.string().optional(),
   recognizedAt: z.string().optional(),
+  media: z.array(heritageMediaItemSchema).optional().default([]),
 });
 
 export type HeritagePayload = z.infer<typeof heritagePayloadSchema>;
@@ -83,4 +100,6 @@ export type ApiResponse<T> = {
   message: string;
   data: T;
 };
+
+
 
