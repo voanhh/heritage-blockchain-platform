@@ -4,7 +4,6 @@ export interface HeritageSnapshot {
   schemaVersion: number;
 
   heritage: {
-    id: string;
     heritageCode: string;
     name: string;
     description: string;
