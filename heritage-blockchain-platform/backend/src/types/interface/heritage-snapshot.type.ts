@@ -18,19 +18,14 @@ export interface HeritageSnapshot {
   };
 
   field: {
-    id: string;
     code: string;
     name: string;
   };
 
   media: {
-    id: string;
     type: string;
-    cid: string;
-    caption: string | null;
+    cid: string;             // CID đại diện cho nội dung file gốc trên IPFS
+    caption: string | null;  // Chú thích ảnh/video (có tính nghiệp vụ)
     order: number;
-    fileName: string | null;
-    mimeType: string | null;
-    fileSize: number | null;
   }[];
 }
