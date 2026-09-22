@@ -11,6 +11,9 @@ import specializationRoutes from './specialization.routes.js';
 import matrixMappingRoutes from './heritage-field-specialization.routes.js';
 import expertRoutes from './expert.routes.js';
 import userRoutes from './user.routes.js'
+import versionRoute from './heritage-version.route.js'
+
+
 export const apiRouter = Router();
 
 apiRouter.use('/health', healthRouter);
@@ -24,4 +27,6 @@ apiRouter.use('/heritage-fields', heritageFieldRoutes);
 apiRouter.use('/specializations', specializationRoutes);
 apiRouter.use('/heritage-field-specializations', matrixMappingRoutes);
 apiRouter.use('/experts', expertRoutes);
-apiRouter.use('/users', userRoutes)
+apiRouter.use('/users', userRoutes);
+apiRouter.use('/version', versionRoute);
+
