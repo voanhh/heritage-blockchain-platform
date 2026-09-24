@@ -1,11 +1,11 @@
 import { config as loadEnv } from 'dotenv';
 import { defineConfig, configVariable } from 'hardhat/config';
-import hardhatVerify from '@nomicfoundation/hardhat-verify';
+import hardhatToolboxMochaEthers from '@nomicfoundation/hardhat-toolbox-mocha-ethers';
 
 loadEnv();
 
 export default defineConfig({
-  plugins: [hardhatVerify],
+  plugins: [hardhatToolboxMochaEthers],
   solidity: {
     version: '0.8.28',
     settings: {
