@@ -5,13 +5,13 @@ import { Heritage } from "../models/heritage.model.js";
 import { HeritageStatus } from "../types/enums/heritage.enum.js";
 import { HeritageSnapshot } from "../types/interface/heritage-snapshot.type.js";
 import { sha256 } from "../utils/hash.until.js";
-
+import { BlockchainService } from "./blockchain.service.js";
 export class HeritageVersionService {
   static async publish(
     heritageId: string,
     adminId: string
   ): Promise<HeritageVersion> {
-    return AppDataSource.transaction(async (manager) => {
+    const savedVersion = await AppDataSource.transaction(async (manager) => {
       const heritageRepo = manager.getRepository(Heritage);
       const versionRepo = manager.getRepository(HeritageVersion);
       const versionMediaRepo = manager.getRepository(HeritageVersionMedia);
@@ -33,7 +33,7 @@ export class HeritageVersionService {
       }
 
       if (!heritage.sourceDocumentCid) {
-        throw new Error('Heritage chưa có HeritageField');
+        throw new Error('Heritage chưa có SourceDocumentId');
       }
 
       //get next version
@@ -104,13 +104,13 @@ export class HeritageVersionService {
         createdBy: adminId
       })
 
-      const savedVersion = await versionRepo.save(version);
+      const saved = await versionRepo.save(version);
 
       //copy media ---> version Media
       if (media.length > 0) {
         const versionMediaEntities = media.map((item) => {
           return versionMediaRepo.create({
-            versionId: savedVersion.id!,
+            versionId: saved.id!,
             type: item.type,
             url: item.url,
             cid: item.cid,
@@ -128,7 +128,7 @@ export class HeritageVersionService {
 
       return versionRepo.findOneOrFail({
         where: {
-          id: savedVersion.id,
+          id: saved.id,
         },
         relations: [
           'heritage',
@@ -138,5 +138,58 @@ export class HeritageVersionService {
         ],
       });
     })
+
+    const blockchainResult = await BlockchainService.publishVersion(
+      savedVersion.heritageId,
+      savedVersion.version,
+      savedVersion.dataHash
+    );
+
+    // PHASE 3: UPDATE DATABASE SAU KHI BLOCKCHAIN SUCCESS
+    // =========================================================
+
+    const versionRepo =
+      AppDataSource.getRepository(HeritageVersion);
+
+    const heritageRepo =
+      AppDataSource.getRepository(Heritage);
+
+    // ---------------------------------------------------------
+    // 12. Lưu transaction hash
+    // ---------------------------------------------------------
+
+    savedVersion.blockchainTxHash =
+      blockchainResult.txHash;
+
+    await versionRepo.save(savedVersion);
+
+    // ---------------------------------------------------------
+    // 13. Đổi Heritage -> PUBLISHED
+    // ---------------------------------------------------------
+
+    await heritageRepo.update(
+      savedVersion.heritageId,
+      {
+        status: HeritageStatus.PUBLISHED,
+      }
+    );
+
+    // ---------------------------------------------------------
+    // 14. Return version cuối cùng
+    // ---------------------------------------------------------
+
+    return versionRepo.findOneOrFail({
+      where: {
+        id: savedVersion.id,
+      },
+      relations: [
+        "heritage",
+        "heritage.field",
+        "media",
+        "media.media",
+      ],
+    });
+
   }
+
 }
