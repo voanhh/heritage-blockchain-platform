@@ -133,8 +133,7 @@ export class HeritageVersionService {
         relations: [
           'heritage',
           'heritage.field',
-          'media',
-          'media.media',
+          'media'
         ],
       });
     })
@@ -148,18 +147,15 @@ export class HeritageVersionService {
     // PHASE 3: UPDATE DATABASE SAU KHI BLOCKCHAIN SUCCESS
     // =========================================================
 
-    const versionRepo =
-      AppDataSource.getRepository(HeritageVersion);
+    const versionRepo = AppDataSource.getRepository(HeritageVersion);
 
-    const heritageRepo =
-      AppDataSource.getRepository(Heritage);
+    const heritageRepo = AppDataSource.getRepository(Heritage);
 
     // ---------------------------------------------------------
     // 12. Lưu transaction hash
     // ---------------------------------------------------------
 
-    savedVersion.blockchainTxHash =
-      blockchainResult.txHash;
+    savedVersion.blockchainTxHash = blockchainResult.txHash;
 
     await versionRepo.save(savedVersion);
 
@@ -185,8 +181,7 @@ export class HeritageVersionService {
       relations: [
         "heritage",
         "heritage.field",
-        "media",
-        "media.media",
+        "media"
       ],
     });
 
