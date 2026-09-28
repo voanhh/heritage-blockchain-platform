@@ -9,7 +9,15 @@ async function main() {
   await contract.waitForDeployment();
 
   const contractAddress = await contract.getAddress();
+
   console.log(`HeritageRegistry deployed to: ${contractAddress}`);
+
+  const tx = contract.deploymentTransaction();
+
+  if (tx) {
+    console.log("Deployment tx:");
+    console.log(tx.hash);
+  }
 }
 
 main().catch((error) => {
