@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { HeritageVersion } from '../api/heritage-version.api';
 
 export type HeritageStatus =
   | 'DRAFT'
@@ -18,6 +19,7 @@ export type Heritage = {
     id: string;
     name: string;
   };
+  versions?: HeritageVersion[];
   location?: LocationItem[];
   source: string;
   sourceOrganization: string;
