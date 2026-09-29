@@ -14,7 +14,9 @@ export class HeritageService {
   static async getAllHeritages(filters: { status?: HeritageStatus; search?: string }) {
     const query = this.heritageRepository
       .createQueryBuilder('heritage')
-      .orderBy('heritage.createdAt', 'DESC');
+      .orderBy('heritage.createdAt', 'DESC')
+      .leftJoinAndSelect('heritage.versions', 'versions')
+      .addOrderBy('versions.version', 'DESC');
 
     if (filters.status) {
       query.andWhere('heritage.status = :status', { status: filters.status });
