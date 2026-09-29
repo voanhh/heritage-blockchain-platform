@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
+    "test:blockchain": "tsx test/blockchain.service.test.ts",
     "seed:heritage:draft": "tsx src/scripts/seed-draft-heritages.ts",
     "migration:generate": "npx typeorm-ts-node-esm migration:generate src/migrations/InitDatabase -d src/config/database.ts",
     "migration:run": "npx typeorm-ts-node-esm migration:run -d src/config/database.ts"
@@ -23,7 +24,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "ethers": "^6.13.4",
+    "ethers": "^6.17.0",
     "express": "^4.21.2",
     "hardhat": "3.13.0",
     "jsonwebtoken": "^9.0.2",
