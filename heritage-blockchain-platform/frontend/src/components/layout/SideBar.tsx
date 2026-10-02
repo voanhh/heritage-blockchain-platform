@@ -6,7 +6,6 @@ import { authApi } from '../../api/auth.api';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/heritages', label: 'Di sản', icon: Archive },
   { to: '/verification', label: 'Kiểm duyệt', icon: CheckCircle2 },
   { to: '/blockchain', label: 'Blockchain', icon: Blocks },
 ];
@@ -15,6 +14,9 @@ export function Sidebar() {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isHeritageMenuOpen, setIsHeritageMenuOpen] = useState(
+    location.pathname.startsWith('/heritage') || location.pathname.startsWith('/heritages')
+  );
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isOrgMenuOpen, setIsOrgMenuOpen] = useState(location.pathname.startsWith('/organization'));
   const [isMgmtMenuOpen, setIsMgmtMenuOpen] = useState(location.pathname.startsWith('/master-data'));
@@ -63,6 +65,48 @@ export function Sidebar() {
             </NavLink>
           );
         })}
+
+        {/* --- MENU CHA: DI SẢN --- */}
+        <div>
+          <button
+            onClick={() => setIsHeritageMenuOpen(!isHeritageMenuOpen)}
+            className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm font-medium transition-colors ${location.pathname.startsWith('/heritage') || location.pathname.startsWith('/heritages')
+              ? 'bg-stone-100 text-slate-900'
+              : 'text-slate-600 hover:bg-stone-100'
+              }`}
+          >
+            <div className="flex items-center gap-3">
+              <Archive size={18} />
+              <span>Di sản</span>
+            </div>
+            {isHeritageMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+
+          {/* SUB MENU DI SẢN */}
+          {isHeritageMenuOpen && (
+            <div className="mt-1 ml-4 space-y-1 border-l-2 border-stone-200 pl-3">
+              <NavLink
+                to="/heritage/list"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-600 hover:bg-stone-100'
+                  }`
+                }
+              >
+                <ScrollText size={14} /> Danh sách di sản
+              </NavLink>
+
+              <NavLink
+                to="/heritage/create"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium ${isActive ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-600 hover:bg-stone-100'
+                  }`
+                }
+              >
+                <FilePlus size={14} /> Lập hồ sơ di sản
+              </NavLink>
+            </div>
+          )}
+        </div>
 
         {/* --- MENU CHA: QUẢN LÝ (CHỈ SYSTEM_ADMIN THẤY) --- */}
         {isSystemAdmin && (

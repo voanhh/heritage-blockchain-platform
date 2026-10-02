@@ -14,7 +14,7 @@ interface DropdownOption {
   name: string;
 }
 
-export function HeritagePage() {
+export function CreateHeritage() {
   const [heritages, setHeritages] = useState<Heritage[]>([]);
   const [editingHeritage, setEditingHeritage] = useState<HeritagePayload | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
