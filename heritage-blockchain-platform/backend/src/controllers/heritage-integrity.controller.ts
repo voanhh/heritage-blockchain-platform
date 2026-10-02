@@ -11,13 +11,13 @@ export class HeritageIntegrityController {
     try {
       const { heritageId } = req.params;
 
-      const result = HeritageIntegrityService.verify(heritageId);
+      const result = await HeritageIntegrityService.verify(heritageId);
 
       return res.status(200).json(
         successHandler("DATA INTEGRITY VERIFIED - NO SIGNS OF TAMPERING", result)
       )
-    } catch {
-
+    } catch (error) {
+      next(error);
     }
   }
 }

@@ -12,7 +12,7 @@ import matrixMappingRoutes from './heritage-field-specialization.routes.js';
 import expertRoutes from './expert.routes.js';
 import userRoutes from './user.routes.js'
 import versionRoute from './heritage-version.route.js'
-
+import integrityRoute from './heritage-integriry.routes.js'
 
 export const apiRouter = Router();
 
@@ -29,4 +29,6 @@ apiRouter.use('/heritage-field-specializations', matrixMappingRoutes);
 apiRouter.use('/experts', expertRoutes);
 apiRouter.use('/users', userRoutes);
 apiRouter.use('/version', versionRoute);
+apiRouter.use('/integrity', integrityRoute);
+
 
