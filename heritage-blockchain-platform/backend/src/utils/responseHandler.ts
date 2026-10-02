@@ -1,4 +1,4 @@
-const successHandler = (status: number, message: string, data: unknown = null) => {
+const successHandler = (message: string, data: unknown = null, status: number = 200) => {
   return {
     success: true,
     status,
