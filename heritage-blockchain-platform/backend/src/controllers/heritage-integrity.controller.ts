@@ -14,7 +14,7 @@ export class HeritageIntegrityController {
       const result = await HeritageIntegrityService.verify(heritageId);
 
       return res.status(200).json(
-        successHandler("DATA INTEGRITY VERIFIED - NO SIGNS OF TAMPERING", result)
+        successHandler(200, "DATA INTEGRITY VERIFIED - NO SIGNS OF TAMPERING", result)
       )
     } catch (error) {
       next(error);
