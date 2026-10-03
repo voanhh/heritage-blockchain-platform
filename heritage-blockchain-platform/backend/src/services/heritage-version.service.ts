@@ -6,7 +6,15 @@ import { HeritageStatus } from "../types/enums/heritage.enum.js";
 import { HeritageSnapshot } from "../types/interface/heritage-snapshot.type.js";
 import { sha256 } from "../utils/hash.until.js";
 import { BlockchainService } from "./blockchain.service.js";
+
+export interface GetVersionFilter {
+  search?: string,
+  location?: string
+}
+
 export class HeritageVersionService {
+  private static versionRepo = AppDataSource.getRepository(HeritageVersion);
+  private static IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs';
   static async publish(
     heritageId: string,
     adminId: string
@@ -184,7 +192,145 @@ export class HeritageVersionService {
         "media"
       ],
     });
-
   }
 
+  static async getLatestVersion(filters: GetVersionFilter) {
+    // 1. Tạo Subquery lấy số version mới nhất cho mỗi heritageId
+    const latestVersionSubQuery = this.versionRepo
+      .createQueryBuilder('sub')
+      .select('sub.heritageId', 'heritageId')
+      .addSelect('MAX(sub.version)', 'maxVersion') // Hoặc MAX(sub.createdAt)
+      .groupBy('sub.heritageId');
+
+    // 2. Query chính INNER JOIN với Subquery trên
+    const versions = await this.versionRepo
+      .createQueryBuilder('version')
+      .innerJoin(
+        `(${latestVersionSubQuery.getQuery()})`,
+        'latest',
+        'version.heritageId = latest.heritageId AND version.version = latest.maxVersion'
+      )
+      .setParameters(latestVersionSubQuery.getParameters())
+      .leftJoinAndSelect('version.media', 'media')
+      .orderBy('version.createdAt', 'DESC')
+      .addOrderBy('media.order', 'ASC')
+      .getMany();
+
+    const parsedVersion = versions.map((v) => {
+      const canonical = typeof v.canonicalData === 'string'
+        ? JSON.parse(v.canonicalData)
+        : v.canonicalData;
+
+      const mediaList = (v.media && v.media.length > 0)
+        ? v.media.map((m) => ({
+          id: m.id,
+          type: m.type,
+          url: m.url,
+          // Ưu tiên thumbnailUrl từ Cloudinary, nếu không có thì lấy url
+          thumbnailUrl: m.thumbnailUrl || m.url,
+          caption: m.caption,
+          cid: m.cid,
+          order: m.order,
+          fileSize: m.fileSize,
+        }))
+        : (canonical?.media || []).map((m: any) => {
+          const fallbackUrl = (m.cid ? `${this.IPFS_GATEWAY}/${m.cid}` : '');
+          return {
+            type: m.type,
+            url: fallbackUrl,
+            thumbnailUrl: m.thumbnailUrl || fallbackUrl,
+            caption: m.caption,
+            cid: m.cid,
+            order: m.order,
+          };
+        })
+      return {
+        ...v,
+        canonicalData: canonical,
+        mediaList, // Mảng media đã được chuẩn hóa link Cloudinary/Thumbnail
+      };
+    })
+
+    return parsedVersion.filter((v) => {
+      const heritage = v.canonicalData?.heritage;
+      if (!heritage) return false;
+
+      if (filters.search) {
+        const keyword = filters.search.toLowerCase().trim();
+        const matchName = heritage.name?.toLowerCase().includes(keyword);
+        const matchCode = heritage.code?.toLowerCase().includes(keyword);
+        if (!matchName && !matchCode) return false;
+      }
+
+      if (filters.location) {
+        const locKeyword = filters.location.toLowerCase().trim();
+        const locations = heritage.location;
+
+        if (!Array.isArray(locations) || locations.length === 0) {
+          return false;
+        }
+
+        const matchLocation = locations.some((loc: any) => {
+          const province = loc.province?.toLowerCase() || '';
+          const district = loc.district?.toLowerCase() || '';
+          const ward = loc.ward?.toLowerCase() || '';
+          return (
+            province.includes(locKeyword) ||
+            district.includes(locKeyword) ||
+            ward.includes(locKeyword)
+          );
+        });
+
+        if (!matchLocation) return false;
+      }
+      return true;
+    });
+  }
+
+  // Lấy chi tiết phiên bản theo ID (kèm relation version.media)
+  static async getVersionById(versionId: string) {
+    const version = await this.versionRepo
+      .createQueryBuilder('version')
+      .leftJoinAndSelect('version.media', 'media')
+      .where('version.id = :versionId', { versionId })
+      .addOrderBy('media.order', 'ASC')
+      .getOne();
+
+    if (!version) return null;
+
+    // Parse Canonical Data nếu đang ở dạng chuỗi JSON
+    const canonical = typeof version.canonicalData === 'string'
+      ? JSON.parse(version.canonicalData)
+      : version.canonicalData;
+
+    // Xử lý ưu tiên danh sách Media từ relation version.media (Cloudinary)
+    const mediaList = (version.media && version.media.length > 0)
+      ? version.media.map((m) => ({
+        id: m.id,
+        type: m.type,
+        url: m.url,
+        thumbnailUrl: m.thumbnailUrl || m.url, // Ưu tiên thumbnailUrl Cloudinary
+        caption: m.caption,
+        cid: m.cid,
+        order: m.order,
+        fileSize: m.fileSize,
+      }))
+      : (canonical?.media || []).map((m: any) => {
+        const fallbackUrl = m.url || (m.cid ? `${this.IPFS_GATEWAY}/${m.cid}` : '');
+        return {
+          type: m.type,
+          url: fallbackUrl,
+          thumbnailUrl: m.thumbnailUrl || fallbackUrl,
+          caption: m.caption,
+          cid: m.cid,
+          order: m.order,
+        };
+      });
+
+    return {
+      ...version,
+      canonicalData: canonical,
+      mediaList,
+    };
+  }
 }
