@@ -39,7 +39,12 @@ export function HeritagePage() {
         location: locationFilter.trim() || undefined,
       });
 
-      const list = Array.isArray(res.data) ? res.data : [];
+      const payload = res?.data;
+      const list = Array.isArray(payload?.items)
+        ? payload.items
+        : Array.isArray(payload)
+          ? payload
+          : [];
       setVersions(list);
     } catch (error) {
       console.error('Lỗi khi tải danh sách di sản:', error);

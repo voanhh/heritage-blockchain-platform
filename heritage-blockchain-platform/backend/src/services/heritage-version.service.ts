@@ -199,100 +199,100 @@ export class HeritageVersionService {
   static async getLatestVersion(filters: GetVersionFilter) {
     const page = Math.max(1, filters.page || 1);
     const limit = Math.max(1, filters.limit || 12);
-    // 1. Tạo Subquery lấy số version mới nhất cho mỗi heritageId
+    const skip = (page - 1) * limit;
+
+    // 1. Subquery lấy MAX(version) cho từng heritageId
     const latestVersionSubQuery = this.versionRepo
       .createQueryBuilder('sub')
-      .select('sub.heritageId', 'heritageId')
-      .addSelect('MAX(sub.version)', 'maxVersion') // Hoặc MAX(sub.createdAt)
+      .select('sub.heritageId', 'sub_heritageId')
+      .addSelect('MAX(sub.version)', 'max_version')
       .groupBy('sub.heritageId');
 
-    // 2. Query chính INNER JOIN với Subquery trên
-    const versions = await this.versionRepo
+    // 2. Query chính INNER JOIN Subquery + Relation Heritage & Media
+    const query = this.versionRepo
       .createQueryBuilder('version')
       .innerJoin(
         `(${latestVersionSubQuery.getQuery()})`,
         'latest',
-        'version.heritageId = latest.heritageId AND version.version = latest.maxVersion'
+        'version.heritageId = latest.sub_heritageId AND version.version = latest.max_version'
       )
       .setParameters(latestVersionSubQuery.getParameters())
-      .leftJoinAndSelect('version.media', 'media')
+      .leftJoinAndSelect('version.heritage', 'heritage')
+      .leftJoinAndSelect('heritage.field', 'field')
+      .leftJoinAndSelect('version.media', 'media');
+
+    // 3. Điều kiện lọc Search (Tên hoặc Mã di sản) trực tiếp bằng SQL
+    if (filters.search) {
+      const keyword = `%${filters.search.trim().toLowerCase()}%`;
+      query.andWhere(
+        '(LOWER(heritage.name) LIKE :search OR LOWER(heritage.heritageCode) LIKE :search)',
+        { search: keyword }
+      );
+    }
+
+    // 4. Điều kiện lọc Location (Tỉnh / Huyện / Xã) trực tiếp bằng SQL
+    if (filters.location) {
+      const locKeyword = `%${filters.location.trim().toLowerCase()}%`;
+      // Tìm kiếm text trên cột location (dù lưu dạng JSONB hay TEXT)
+      query.andWhere(
+        'LOWER(CAST(heritage.location AS TEXT)) LIKE :location',
+        { location: locKeyword }
+      );
+    }
+
+    // 5. Thêm Sắp xếp, Skip, Take (Limit/Offset) ở cấp độ Database
+    query
       .orderBy('version.createdAt', 'DESC')
-      .addOrderBy('media.order', 'ASC')
-      .getMany();
+      .skip(skip)
+      .take(limit);
 
-    const parsedVersion = versions.map((v) => {
-      const canonical = typeof v.canonicalData === 'string'
-        ? JSON.parse(v.canonicalData)
-        : v.canonicalData;
+    // 6. Thực thi Query: Lấy danh sách bản ghi trang hiện tại & Tổng số bản ghi thỏa điều kiện
+    const [versions, total] = await query.getManyAndCount();
 
-      const mediaList = (v.media && v.media.length > 0)
-        ? v.media.map((m) => ({
-          id: m.id,
-          type: m.type,
-          url: m.url,
-          // Ưu tiên thumbnailUrl từ Cloudinary, nếu không có thì lấy url
-          thumbnailUrl: m.thumbnailUrl || m.url,
-          caption: m.caption,
-          cid: m.cid,
-          order: m.order,
-          fileSize: m.fileSize,
-        }))
-        : (canonical?.media || []).map((m: any) => {
-          const fallbackUrl = (m.cid ? `${this.IPFS_GATEWAY}/${m.cid}` : '');
-          return {
+    // 7. Parse và chuẩn hóa dữ liệu Media cho 12 bản ghi của trang hiện tại
+    const items = versions.map((v) => {
+      if (v.media && v.media.length > 0) {
+        v.media.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      }
+
+      const canonical =
+        typeof v.canonicalData === 'string'
+          ? JSON.parse(v.canonicalData)
+          : v.canonicalData;
+
+      const mediaList =
+        v.media && v.media.length > 0
+          ? v.media.map((m) => ({
+            id: m.id,
             type: m.type,
-            url: fallbackUrl,
-            thumbnailUrl: m.thumbnailUrl || fallbackUrl,
+            url: m.url,
+            thumbnailUrl: m.thumbnailUrl || m.url,
             caption: m.caption,
             cid: m.cid,
             order: m.order,
-          };
-        })
+            fileSize: m.fileSize,
+          }))
+          : (canonical?.media || []).map((m: any) => {
+            const fallbackUrl = m.url || (m.cid ? `${this.IPFS_GATEWAY}/${m.cid}` : '');
+            return {
+              type: m.type,
+              url: fallbackUrl,
+              thumbnailUrl: m.thumbnailUrl || fallbackUrl,
+              caption: m.caption,
+              cid: m.cid,
+              order: m.order,
+            };
+          });
+
       return {
         ...v,
         canonicalData: canonical,
-        mediaList, // Mảng media đã được chuẩn hóa link Cloudinary/Thumbnail
+        mediaList,
       };
-    })
-
-    const filtered = parsedVersion.filter((v) => {
-      const heritage = v.canonicalData?.heritage;
-      if (!heritage) return false;
-
-      if (filters.search) {
-        const keyword = filters.search.toLowerCase().trim();
-        const matchName = heritage.name?.toLowerCase().includes(keyword);
-        const matchCode = heritage.code?.toLowerCase().includes(keyword);
-        if (!matchName && !matchCode) return false;
-      }
-
-      if (filters.location) {
-        const locKeyword = filters.location.toLowerCase().trim();
-        const locations = heritage.location;
-
-        if (!Array.isArray(locations) || locations.length === 0) {
-          return false;
-        }
-
-        const matchLocation = locations.some((loc: any) => {
-          const province = loc.province?.toLowerCase() || '';
-          const district = loc.district?.toLowerCase() || '';
-          const ward = loc.ward?.toLowerCase() || '';
-          return (
-            province.includes(locKeyword) ||
-            district.includes(locKeyword) ||
-            ward.includes(locKeyword)
-          );
-        });
-
-        if (!matchLocation) return false;
-      }
-      return true;
     });
-    const total = filtered.length;
+
     const totalPages = Math.ceil(total / limit);
-    const startIndex = (page - 1) * limit;
-    const items = filtered.slice(startIndex, startIndex + limit);
+
     return {
       items,
       total,

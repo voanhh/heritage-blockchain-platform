@@ -127,6 +127,16 @@ export interface LegalDocUploadResponse {
   fileName: string;
 }
 
+export interface PaginatedHeritageVersionResponse {
+  items: HeritageVersionItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+
+
 export type HeritageVersionItem = {
   id: string;
   heritageId: string;

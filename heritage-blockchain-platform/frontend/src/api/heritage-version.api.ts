@@ -1,6 +1,6 @@
 // src/api/heritage-version.api.ts
 import axiosClient from './axiosClient';
-import type { ApiResponse, HeritageVersionItem } from '../types/heritage';
+import type { ApiResponse, HeritageVersionItem, PaginatedHeritageVersionResponse } from '../types/heritage';
 
 export interface HeritageVersion {
   id: string;
@@ -17,8 +17,14 @@ export const heritageVersionApi = {
     axiosClient.post<{ success: boolean, data: HeritageVersion }>(`/version/${heritageId}/publish`),
 
   // 1. Lấy danh sách (Có tìm kiếm theo Name & Location)
-  getVersions: async (params?: { search?: string; location?: string }): Promise<ApiResponse<HeritageVersionItem[]>> => {
-    const response = await axiosClient.get('/version', { params });
+  getVersions: async (params?: {
+    search?: string;
+    location?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    // Sửa kiểu trả về từ HeritageVersionItem[] sang PaginatedHeritageVersionResponse
+    const response = await axiosClient.get<{ data: PaginatedHeritageVersionResponse }>('/version', { params });
     return response.data;
   },
 
