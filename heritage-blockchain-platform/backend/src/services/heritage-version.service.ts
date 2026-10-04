@@ -9,7 +9,9 @@ import { BlockchainService } from "./blockchain.service.js";
 
 export interface GetVersionFilter {
   search?: string,
-  location?: string
+  location?: string,
+  page?: number;
+  limit?: number;
 }
 
 export class HeritageVersionService {
@@ -195,6 +197,8 @@ export class HeritageVersionService {
   }
 
   static async getLatestVersion(filters: GetVersionFilter) {
+    const page = Math.max(1, filters.page || 1);
+    const limit = Math.max(1, filters.limit || 12);
     // 1. Tạo Subquery lấy số version mới nhất cho mỗi heritageId
     const latestVersionSubQuery = this.versionRepo
       .createQueryBuilder('sub')
@@ -251,7 +255,7 @@ export class HeritageVersionService {
       };
     })
 
-    return parsedVersion.filter((v) => {
+    const filtered = parsedVersion.filter((v) => {
       const heritage = v.canonicalData?.heritage;
       if (!heritage) return false;
 
@@ -285,6 +289,17 @@ export class HeritageVersionService {
       }
       return true;
     });
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / limit);
+    const startIndex = (page - 1) * limit;
+    const items = filtered.slice(startIndex, startIndex + limit);
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   // Lấy chi tiết phiên bản theo ID (kèm relation version.media)

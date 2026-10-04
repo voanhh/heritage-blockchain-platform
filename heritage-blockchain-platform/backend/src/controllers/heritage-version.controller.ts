@@ -31,8 +31,10 @@ export class HeritageVersionController {
     try {
       const search = req.query.search ? String(req.query.search) : undefined;
       const location = req.query.location ? String(req.query.location) : undefined;
+      const page = req.query.page ? parseInt(String(req.query.page), 10) : 1;
+      const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : 12;
 
-      const versions = await HeritageVersionService.getLatestVersion({ search, location });
+      const versions = await HeritageVersionService.getLatestVersion({ search, location, page, limit });
 
       return res.status(200).json(
         successHandler(200, 'Lấy danh sách phiên bản di sản thành công', versions)
