@@ -16,8 +16,8 @@ import {
   Building2,
 } from 'lucide-react';
 import { heritageApi } from '../services/heritage.api';
-import { heritageVersionApi } from '../api/heritage-version.api';
-import type { Heritage, HeritageVersion } from '../types/heritage';
+import { HeritageVersion, heritageVersionApi } from '../api/heritage-version.api';
+import type { Heritage } from '../types/heritage';
 
 export function BlockchainRecordsPage() {
   const [activeTab, setActiveTab] = useState<'verified' | 'published'>('verified');
@@ -201,8 +201,8 @@ export function BlockchainRecordsPage() {
             <button
               onClick={() => setActiveTab('verified')}
               className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded transition-all ${activeTab === 'verified'
-                  ? 'bg-white text-blue-900 shadow-sm border border-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-900 shadow-sm border border-slate-200'
+                : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <FileCheck2 size={15} />
@@ -211,8 +211,8 @@ export function BlockchainRecordsPage() {
             <button
               onClick={() => setActiveTab('published')}
               className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded transition-all ${activeTab === 'published'
-                  ? 'bg-white text-blue-900 shadow-sm border border-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-900 shadow-sm border border-slate-200'
+                : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <ShieldCheck size={15} />

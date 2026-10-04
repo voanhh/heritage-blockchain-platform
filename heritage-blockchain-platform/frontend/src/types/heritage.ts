@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { HeritageVersion } from '../api/heritage-version.api';
 
-export type HeritageStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'UNDER_REVIEW'
-  | 'VERIFIED'
-  | 'REJECTED'
-  | 'PUBLISHED';
-
+export enum HeritageStatus {
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+  UNDER_REVIEW = 'UNDER_REVIEW',
+  VERIFIED = 'VERIFIED',
+  REJECTED = 'REJECTED',
+  PUBLISHED = 'PUBLISHED'
+}
 export type Heritage = {
   id: string;
   heritageCode: string;
@@ -40,6 +40,19 @@ export interface LocationItem {
   district?: string;
   ward?: string;
 }
+
+export type HeritageIntegrityResult = {
+  heritageId: string;
+  version: number;
+  integrityValid: boolean;
+  currentDataHash: string;
+  databaseDataHash: string;
+  blockchainDataHash: string;
+  databaseValid: boolean;
+  blockchainValid: boolean;
+  blockchainTxHash?: string;
+  verifiedAt: string;
+};
 
 export const heritageMediaItemSchema = z.object({
   type: z.enum(['IMAGE', 'VIDEO', 'AUDIO'], {
@@ -114,5 +127,60 @@ export interface LegalDocUploadResponse {
   fileName: string;
 }
 
+export interface PaginatedHeritageVersionResponse {
+  items: HeritageVersionItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+
+
+export type HeritageVersionItem = {
+  id: string;
+  heritageId: string;
+  version: number;
+  canonicalData: CanonicalData;
+  media?: HeritageVersionMedia[];    // Relation từ Backend
+  mediaList?: HeritageVersionMedia[]; // Mảng Media chuẩn hóa từ Service
+  dataHash?: string;
+  blockchainTxHash?: string;
+  createdAt?: string;
+};
+
+export type HeritageVersionMedia = {
+  id?: string;
+  type: string;
+  url: string;
+  thumbnailUrl?: string; // Link Cloudinary thumbnail
+  caption?: string;
+  cid?: string;
+  order?: number;
+  fileSize?: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CanonicalData = {
+  schemaVersion: number;
+  field: {
+    code: string;
+    name: string;
+  };
+  heritage: {
+    heritageCode: string;
+    name: string;
+    description: string;
+    location?: LocationItem[] | null;
+    source: string;
+    sourceOrganization: string;
+    sourceDocumentNumber?: string | null;
+    sourceUrl?: string | null;
+    sourceDocumentCid?: string | null;
+    recognizedAt?: string | null;
+  };
+  media: HeritageVersionMedia[];
+};
 
 
