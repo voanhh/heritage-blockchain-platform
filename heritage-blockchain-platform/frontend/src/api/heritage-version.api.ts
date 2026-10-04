@@ -24,7 +24,7 @@ export const heritageVersionApi = {
 
   // 2. Lấy chi tiết phiên bản di sản theo ID
   getVersionById: async (id: string): Promise<ApiResponse<HeritageVersionItem>> => {
-    const response = await axiosClient.get(`version/${id}`);
+    const response = await axiosClient.get(`/version/${id}`);
     return response.data;
   },
 };
