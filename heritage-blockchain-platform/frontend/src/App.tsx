@@ -17,6 +17,7 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { HeritageFieldsPage } from './pages/master-data/HeritageFieldsPage';
 import { SpecializationsPage } from './pages/master-data/SpecializationsPage';
 import { UserManagementPage } from './pages/master-data/UserManagementPage';
+import { HeritagePage } from './pages/HeritagePage';
 
 export default function App() {
 
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/heritage/create" element={<CreateHeritage />} />
+          <Route path="/heritage/list" element={<HeritagePage />} />
           <Route path="/heritages/:id" element={<HeritageDetailPage />} />
           <Route path="/verification" element={<VerificationPage />} />
           <Route path="/blockchain" element={<BlockchainRecordsPage />} />
