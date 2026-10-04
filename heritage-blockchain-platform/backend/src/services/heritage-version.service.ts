@@ -292,7 +292,7 @@ export class HeritageVersionService {
     const version = await this.versionRepo
       .createQueryBuilder('version')
       .leftJoinAndSelect('version.media', 'media')
-      .where('version.id = :versionId', { versionId })
+      .where('version.heritageId = :versionId', { versionId })
       .addOrderBy('media.order', 'ASC')
       .getOne();
 

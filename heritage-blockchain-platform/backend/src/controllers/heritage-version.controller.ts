@@ -48,7 +48,6 @@ export class HeritageVersionController {
     try {
       const { id } = req.params;
       const version = await HeritageVersionService.getVersionById(id);
-
       if (!version) {
         return res.status(404).json(errorHandler(404, 'Không tìm thấy phiên bản di sản'));
       }
